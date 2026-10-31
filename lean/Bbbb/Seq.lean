@@ -13,6 +13,16 @@ import Bbbb.Defs
 
 namespace Bbbb
 
+/-- induction on `n ≥ m` (as Mathlib's `Nat.le_induction`) -/
+@[elab_as_elim] theorem Nat.le_induction {m : Nat} {P : ∀ n, m ≤ n → Prop}
+    (base : P m (Nat.le_refl m)) (succ : ∀ n hmn, P n hmn → P (n + 1) (Nat.le_succ_of_le hmn)) :
+    ∀ n hmn, P n hmn := by
+  intro n hmn
+  obtain ⟨d, rfl⟩ : ∃ d, n = m + d := ⟨n - m, by omega⟩
+  induction d with
+  | zero => exact base
+  | succ d ih => exact succ (m + d) (by omega) (ih (by omega))
+
 variable {be bo : Nat → Bool}
 
 theorem le_of_rep {i j t : Nat} (hI : IsInterval bo i j)
