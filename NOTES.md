@@ -1,5 +1,24 @@
 # Notes: towards BBBB(3) and BBBB(2, 3)
 
+## BBBB(3): state of the proof (2026-10-31)
+
+* Lower bound 127 proven (`Champ3.lean`), in all three models.
+* Upper bound 127 proven for every machine except those extending one of the 3740 holdout leaves
+  of the tree (`Main3.lean`, hypothesis `Holds3Covered`).  Up to mirror image and swapping B/C
+  these are 935 machines (`tools/bbbb3/holdout_types.txt`): by tape growth between steps 20000
+  and 80000, 774 bouncer-like (width ~ √t) and 161 counter-like (width grows very slowly);
+  none grows linearly (every translated cycler found got a certificate).
+* Simulation gives `g ≤ 62` for every holdout, so BBBB(3) = 127 is expected.
+* Next: an automated bouncer prover.  A bouncer's round is made of fixed words and blocks
+  repeated a linear number of times; the BBBB(2) bouncer theorem (`Holdouts/Bouncer.lean`)
+  should generalize to such rounds, with a symbolic window run (counts as parameters) checking
+  the round.  Counter-like machines: generalize `Holdouts/Counter.lean` (recurring prefix).
+  For upper bounds it often suffices that an early interval's label factor recurs forever
+  (`factor_interval`), which needs only recurring configurations, not exact rounds; the cases
+  where values grow (no `g`) need the full round structure.
+
+## Exploration (2026-10-31)
+
 Exploration only, by simulation (2026-10-31); nothing here is proven yet.  Scripts in
 `tools/explore/` (see their docstrings).
 

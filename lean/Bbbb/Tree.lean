@@ -1,4 +1,4 @@
-import Bbbb.Codes
+import Bbbb.Exact
 
 /-!
 # Trees of partial machines
@@ -227,11 +227,134 @@ where
     cases b <;> cases b' <;> simp at h <;> first | omega | exact ⟨Fin.ext (by omega), rfl⟩
 
 
+/-! ## leaves with a bound for each boop set, and witnesses for each beep set -/
+
+/-- the values of a transition set on the transitions, in index order -/
+def bitsOf {n : Nat} (S : TSet (n + 1)) : List Bool :=
+  (List.range (2 * (n + 1))).map (fun i => if h : i / 2 < n + 1 then S ⟨i / 2, h⟩ (i % 2 == 1) else false)
+
+def ofBits {n : Nat} (l : List Bool) : TSet (n + 1) := fun q b => l.getD (tIdx q b) false
+
+theorem ofBits_bitsOf {n : Nat} (S : TSet (n + 1)) : ofBits (bitsOf S) = S := by
+  funext q b
+  obtain ⟨q, hq⟩ := q
+  have hi : tIdx (⟨q, hq⟩ : Fin (n + 1)) b < 2 * (n + 1) := by simp only [tIdx, Fin.val_mk]; split <;> omega
+  simp only [ofBits, bitsOf, List.getD_eq_getElem?_getD, List.getElem?_map,
+    List.getElem?_range hi, Option.map_some', Option.getD_some]
+  have h1 : tIdx (⟨q, hq⟩ : Fin (n + 1)) b / 2 = q := by simp only [tIdx, Fin.val_mk]; split <;> omega
+  have h2 : (tIdx (⟨q, hq⟩ : Fin (n + 1)) b % 2 == 1) = b := by
+    simp only [tIdx, Fin.val_mk]; cases b <;> simp <;> omega
+  rw [dif_pos (by omega)]
+  simp only [h1, h2]
+
+/-- all bit lists of length `m` -/
+def allBits : Nat → List (List Bool)
+  | 0 => [[]]
+  | m + 1 => (allBits m).flatMap (fun l => [false :: l, true :: l])
+
+theorem mem_allBits : ∀ (l : List Bool), l ∈ allBits l.length
+  | [] => by simp [allBits]
+  | b :: l => by
+    simp only [allBits, List.length_cons, List.mem_flatMap, List.mem_cons, List.mem_singleton,
+      List.not_mem_nil, or_false]
+    exact ⟨l, mem_allBits l, by cases b <;> simp⟩
+
+theorem bitsOf_length {n : Nat} (S : TSet (n + 1)) : (bitsOf S).length = 2 * (n + 1) := by
+  simp [bitsOf]
+
+section leafO
+variable {n : Nat} (pre per : List (Fin (n + 1) × Bool)) (K : Nat)
+
+/-- the events of a transition set given by bits -/
+def evB (l : List Bool) (k : Nat) : Bool := evq (ofBits (n := n) l) (seqv pre per k)
+
+/-- the boop set misses the period -/
+def missB (ob : List Bool) : Bool :=
+  (List.range per.length).all (fun d => !evB pre per ob (pre.length + d))
+
+/-- two boops after the preperiod, before step `K` -/
+def twoB (ob : List Bool) : Bool :=
+  (List.range (K - pre.length)).any (fun e1 => (List.range (K - pre.length)).any (fun e2 =>
+    decide (e1 < e2) && evB pre per ob (pre.length + e1) && evB pre per ob (pre.length + e2)))
+
+/-- a witness `(ob, bb, i, j, i', j')`: the interval `(i, j)` ends before `K` and has the value
+of the interval `(i', j')` in the period -/
+def witOK (w : List Bool × List Bool × Nat × Nat × Nat × Nat) : Bool :=
+  let (ob, bb, i, j, i', j') := w
+  isIntB (evB pre per ob) i j && decide (j < K) && isIntB (evB pre per ob) i' j' &&
+    decide (pre.length ≤ i') &&
+    decide (value (evB pre per bb) i j = value (evB pre per bb) i' j')
+
+def critO (wit : List (List Bool × List Bool × Nat × Nat × Nat × Nat)) : Bool :=
+  (allBits (2 * (n + 1))).all (fun ob => missB pre per ob || twoB pre per K ob ||
+    (allBits (2 * (n + 1))).all (fun bb =>
+      wit.any (fun w => decide (w.1 = ob) && decide (w.2.1 = bb) && witOK pre per K w)))
+
+end leafO
+
+theorem evB_periodic {n : Nat} (pre per : List (Fin (n + 1) × Bool)) (l : List Bool) :
+    Periodic (evB pre per l) pre.length per.length := by
+  intro k hk; simp only [evB]; rw [seqv_periodic _ _ _ hk]
+
+theorem seqv_isSome {α : Type} {pre per : List α} (hp : 0 < per.length) (k : Nat) :
+    (seqv pre per k).isSome := by
+  unfold seqv
+  split
+  · simp [List.getElem?_eq_getElem (by omega : k < pre.length)]
+  · simp [List.getElem?_eq_getElem (Nat.mod_lt _ hp)]
+
+theorem good_of_critO {n : Nat} {M : Machine (n + 1)} {pre per : List (Fin (n + 1) × Bool)} {K : Nat}
+    {wit : List (List Bool × List Bool × Nat × Nat × Nat × Nat)}
+    (hlab : ∀ k, lab M k = seqv pre per k) (hp : 0 < per.length) (h : critO pre per K wit = true) :
+    Good M K := by
+  intro B O t hq
+  have e : ∀ S : TSet (n + 1), ev S M = evB pre per (bitsOf S) := by
+    intro S; funext k; rw [ev_eq, hlab]; simp only [evB, ofBits_bitsOf]
+  unfold Machine.QQHaltsAt at hq
+  rw [e B, e O] at hq
+  have hob := mem_allBits (bitsOf O); rw [bitsOf_length] at hob
+  have hbb := mem_allBits (bitsOf B); rw [bitsOf_length] at hbb
+  unfold critO at h
+  rw [List.all_eq_true] at h
+  have h1 := h _ hob
+  simp only [Bool.or_eq_true] at h1
+  rcases h1 with (h1 | h1) | h1
+  · -- the boop set misses the period
+    refine absurd hq (not_of_periodic hp (evB_periodic pre per _) (fun k hk1 hk2 => ?_))
+    unfold missB at h1
+    rw [List.all_eq_true] at h1
+    have := h1 (k - pre.length) (List.mem_range.2 (by omega))
+    rw [show pre.length + (k - pre.length) = k by omega] at this
+    simpa using this
+  · -- two boops after the preperiod
+    unfold twoB at h1
+    simp only [List.any_eq_true, List.mem_range, Bool.and_eq_true, decide_eq_true_eq] at h1
+    obtain ⟨e1, he1, e2, he2, ⟨hlt, b1⟩, b2⟩ := h1
+    have := le_of_periodic (T := K - 1) hp (evB_periodic pre per (bitsOf B))
+      (evB_periodic pre per (bitsOf O)) (Nat.le_add_right _ e1) (by omega) (by omega) b1 b2 hq
+    omega
+  · -- a witness for the beep set
+    rw [List.all_eq_true] at h1
+    have := h1 _ hbb
+    simp only [List.any_eq_true, Bool.and_eq_true, decide_eq_true_eq] at this
+    obtain ⟨⟨ob, bb, i, j, i', j'⟩, _, ⟨hob', hbb'⟩, hw⟩ := this
+    simp only at hob' hbb'
+    subst hob' hbb'
+    simp only [witOK, Bool.and_eq_true, decide_eq_true_eq] at hw
+    obtain ⟨⟨⟨⟨hI, hjK⟩, hI'⟩, hi'⟩, hv⟩ := hw
+    have hrep := rep_of_periodic hp (evB_periodic pre per (bitsOf B))
+      (evB_periodic pre per (bitsOf O)) hi' (isIntB_iff.1 hI')
+    rw [← hv] at hrep
+    have := le_of_rep (isIntB_iff.1 hI) hrep hq
+    omega
+
 /-! ## trees -/
 
 inductive Tree
   /-- a certified leaf -/
   | leaf (c : Cert)
+  /-- a leaf with a bound for each boop set, and witnesses for the beep sets -/
+  | leafO (c : Cert) (wit : List (List Bool × List Bool × Nat × Nat × Nat × Nat))
   /-- the holdout number `k`, proved separately -/
   | hold (k : Nat)
   /-- the partial machine halts after `t` steps on an undefined transition; the subtrees for
@@ -241,6 +364,8 @@ inductive Tree
 mutual
 def checkTree (n K : Nat) (hl : List PM) : PM → Tree → Bool
   | P, .leaf c => checkLeaf (P.toM n) K c
+  | P, .leafO c wit => certOK (P.toM n) c &&
+      critO (certLabs (P.toM n) c).1 (certLabs (P.toM n) c).2 K wit
   | P, .hold k => decide (hl[k]? = some P)
   | P, .node t kids => match haltIdx (P.toM n) t with
     | some i => decide (P[i]? = some none) && checkKids n K hl P i 1 kids
@@ -259,6 +384,12 @@ theorem checkTree_sound {n K : Nat} {hl : List PM}
     (hh : ∀ (k : Nat) (P : PM), hl[k]? = some P → Covered n K P) :
     ∀ (P : PM) (T : Tree), checkTree n K hl P T = true → Covered n K P
   | P, .leaf c, h => fun _ hM => good_of_leaf (by simpa [checkTree] using h) hM
+  | P, .leafO c wit, h => fun M hM => by
+    simp only [checkTree, Bool.and_eq_true] at h
+    obtain ⟨hlab, hp⟩ := lab_certLabs h.1
+    have hg := good_of_critO hlab hp h.2
+    exact good_of_lab (fun k => labFrom_sub hM.sub (by
+      show (lab (P.toM n) k).isSome; rw [hlab]; exact seqv_isSome hp k)) hg
   | P, .hold k, h => hh k P (by simpa [checkTree] using h)
   | P, .node t kids, h => by
     simp only [checkTree] at h
