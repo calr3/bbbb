@@ -96,3 +96,12 @@ each), then `lake env lean Check.lean` prints the axioms.
 
 The core files `Core/Sys.lean`, `Core/Basic.lean`, `Core/Mirror.lean` are from
 [tinycryptids](https://github.com/calr3/tinycryptids).
+
+## Tooting Terminating Turmites (TTT)
+
+Terminating Turmites (relative-movement TMs: `P` proceed, `T` turn around) with one toot
+transition; the value is the step of the last toot (quasihalting), as in BBB.  See
+[`ttt.md`](ttt.md) and `tools/ttt/`.  TTT(2) = 13, TTT(1,3) = 5 and TTT(1,4) = 9 (conjectured:
+the holdouts are left to simulation); TTT(3) ≥ 90,899 with `1TB0PA_0PC1PC_1PA0PB` (toot C1);
+TTT(2,3) ≥ 3,015,143 with `1TB2PB0PB_2TB2PA0PA` (toot A1).  Both are translated cyclers that stop
+using the toot transition.
