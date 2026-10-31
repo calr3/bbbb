@@ -85,7 +85,7 @@ identical values.  Values of the 220 machines extending the holdouts come from s
 
 | Number of steps | Number of machines | Example machine |
 |---:|---:|---|
-| ∞ | 431824 (220 by simulation only) | `1RB---_0RC---_0RA---` |
+| ∞ | 431,824 | `1RB---_0RC---_0RA---` |
 | 55 | 4 | `1RB0LB_1LA0RC_1LC1LA` |
 | 54 | 4 | `1RB0LB_1RC0RC_1LC1LA` |
 | 52 | 4 | `1RB0LC_1LB0RC_1LC1LA` |
