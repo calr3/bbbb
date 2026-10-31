@@ -4,8 +4,12 @@
 A node is a partial machine (6 entries, `None` = undefined, else a code 1..12 of `decTr 2`); it
 runs until it reaches an undefined transition (after `t` steps), and its children are the 12
 choices for that transition, in code order.  A leaf (no undefined transition reached in 3000
-steps) gets a translated-cycler certificate from `classify.record_cert` passing `crit` with
-K = 127, or is a holdout.
+steps) gets a translated-cycler certificate (`fast_cert`) passing `crit` with K = 127, or the
+per-boop-set check `critO` with witnesses, or is a holdout.  The tree is cached in tree3.pkl.
+
+Output: the kernel keeps its caches for a whole declaration, so the tree is cut into chunk files
+(the subtrees at depth CUT + 1), each a glue tree over forests of weight about U (one
+declaration per forest), which keeps every Lean process near 0.5 GB.
 
 Writes lean/Bbbb/Certs3/*.lean and holdouts3_full.txt; prints a summary.
 """
@@ -18,6 +22,7 @@ from classify import sim
 
 K = 127
 CUT = 2  # chunks are the subtrees at depth CUT + 1
+U = 25   # weight (about the number of leaves) of the subtrees checked in one declaration
 NS = 3
 ROOT = os.path.join(HERE, '..', '..', 'lean', 'Bbbb')
 
@@ -235,7 +240,7 @@ def lean_tree(T):
         return f'.leafO (.per {t0} {p} {lean_bools(l)} {lean_bools(r)} .{kl} .{kr}) [{ws}]'
     if T[0] == 'hold':
         return f'.hold {T[1]}'
-    if T[0] == 'chunk':
+    if T[0] == 'ref':
         return f'.hold {T[1]}'
     return f'.node {T[1]} [' + ', '.join(lean_tree(k) for k in T[2]) + ']'
 
@@ -251,16 +256,64 @@ def main():
     global holds
     if os.path.exists(cache):
         T, holds = pickle.load(open(cache, 'rb'))
+        def count(T):
+            stats[T[0]] += 1
+            if T[0] == 'node':
+                for k in T[2]:
+                    count(k)
+        count(T)
     else:
         T = build(root)
         pickle.dump((T, holds), open(cache, 'wb'))
     print(dict(stats), flush=True)
-    # chunks: the subtrees at depth 2
-    chunks = []
-    def cut(T, P, depth):
+    # regions: the top (nodes down to depth CUT) and the chunks (the subtrees at depth CUT + 1).
+    # A region is checked as a glue tree whose `.hold j` refer to the roots of its parts; the
+    # parts are checked in forests of weight about U, one declaration each (the kernel keeps its
+    # caches for a whole declaration, so small declarations keep the memory of a build small).
+    wmemo = {}
+    def weight(T):
+        key = id(T)
+        if key not in wmemo:
+            if T[0] == 'leaf':
+                wmemo[key] = 1 + (T[1][0] + T[1][1]) / 40
+            elif T[0] == 'leafO':
+                wmemo[key] = U
+            elif T[0] == 'hold':
+                wmemo[key] = 0.2
+            else:
+                wmemo[key] = sum(weight(k) for k in T[2])
+        return wmemo[key]
+
+    def pack(items):
+        forests, cur, w = [], [], 0
+        for P, T in items:
+            x = weight(T)
+            if cur and w + x > U:
+                forests.append(cur); cur, w = [], 0
+            cur.append((P, T)); w += x
+        if cur:
+            forests.append(cur)
+        return forests
+
+    def region(T, P):
+        parts = []
+        def go(T, P):
+            if T[0] != 'node' or weight(T) <= U:
+                parts.append((P, T))
+                return ('ref', len(parts) - 1)
+            i = halt_point(P)[1]
+            kids = []
+            for c, k in enumerate(T[2], start=1):
+                Q = list(P); Q[i] = c
+                kids.append(go(k, Q))
+            return ('node', T[1], kids)
+        return go(T, P), parts
+
+    top_items, chunks = [], []
+    def top(T, P, depth):
         if T[0] != 'node':
-            return T
-        t = T[1]
+            top_items.append((P, T))
+            return ('item', len(top_items) - 1)
         i = halt_point(P)[1]
         kids = []
         for c, k in enumerate(T[2], start=1):
@@ -268,46 +321,87 @@ def main():
             if depth == CUT and k[0] == 'node':
                 chunks.append((Q, k)); kids.append(('chunk', len(chunks) - 1))
             else:
-                kids.append(cut(k, Q, depth + 1))
-        return ('node', t, kids)
-    top = cut(T, root, 0)
+                kids.append(top(k, Q, depth + 1))
+        return ('node', T[1], kids)
+    top_glue = top(T, root, 0)
+    def fix(G):
+        if G[0] == 'item':
+            return ('ref', G[1])
+        if G[0] == 'chunk':
+            return ('ref', len(top_items) + G[1])
+        return ('node', G[1], [fix(k) for k in G[2]])
+    top_glue = fix(top_glue)
+
+    HDR = 'namespace Bbbb\n\nset_option maxHeartbeats 0\nset_option maxRecDepth 1000000\n\n'
+    HH = '(hh : ∀ (j : Nat) (P : PM), holds3[j]? = some P → Covered 2 127 P)'
+
+    def lean_forest(F):
+        return '[' + ',\n  '.join(f'({lean_pm(P)}, {lean_tree(T)})' for P, T in F) + ']'
+
+    def emit_forests(f, prefix, forests):
+        for i, F in enumerate(forests):
+            f.write(f'def {prefix}_{i} : List (PM × Tree) :=\n  {lean_forest(F)}\n\n')
+            f.write(f'theorem {prefix}_{i}_ok : checkForest 2 {K} holds3 {prefix}_{i} = true := '
+                    'by decide +kernel\n\n')
+        f.write(f'def {prefix}s : List (List (PM × Tree)) :=\n  [' +
+                ', '.join(f'{prefix}_{i}' for i in range(len(forests))) + ']\n\n')
+        # every forest is covered, as a nested `List.forall_mem_cons`
+        proof = 'fun _ h => absurd h (List.not_mem_nil _)'
+        for i in reversed(range(len(forests))):
+            proof = (f'List.forall_mem_cons.2 ⟨checkForest_sound decTr2_surj hh {prefix}_{i}_ok,\n'
+                     f'    {proof}⟩')
+        f.write(f'theorem {prefix}s_covered {HH} :\n    ∀ F ∈ {prefix}s, ∀ x ∈ F, Covered 2 {K} x.1 :=\n'
+                f'  {proof}\n\n')
+
     d = os.path.join(ROOT, 'Certs3')
     os.makedirs(d, exist_ok=True)
     for f in os.listdir(d):
         os.remove(os.path.join(d, f))
     with open(os.path.join(d, 'Data.lean'), 'w') as f:
         f.write('import Bbbb.Tree\n\n/-! Generated by `tools/bbbb3/gen3.py`: the holdouts and the '
-                'chunk roots of the tree of partial 3-state machines. -/\n\nnamespace Bbbb\n\n'
-                'set_option maxHeartbeats 0\nset_option maxRecDepth 1000000\n\n')
+                'chunk roots of the tree of partial 3-state machines. -/\n\n' + HDR)
         f.write('/-- the holdouts (partial machines) -/\ndef holds3 : List PM := [\n  ' +
                 ',\n  '.join(lean_pm(P) for P in holds) + ']\n\n')
         f.write('/-- the roots of the chunks -/\ndef chunkRoots3 : List PM := [\n  ' +
                 ',\n  '.join(lean_pm(P) for P, _ in chunks) + ']\n\nend Bbbb\n')
+    nforests = 0
     for k, (P, C) in enumerate(chunks):
+        glue, parts = region(C, P)
+        forests = pack(parts)
+        nforests += len(forests)
         with open(os.path.join(d, f'C{k}.lean'), 'w') as f:
-            f.write('import Bbbb.Certs3.Data\n\nnamespace Bbbb\n\nset_option maxHeartbeats 0\nset_option maxRecDepth 1000000\n\n')
-            f.write(f'def chunk3_{k} : Tree :=\n  {lean_tree(C)}\n\n')
-            f.write(f'theorem chunk3_{k}_ok : checkTree 2 {K} holds3 {lean_pm(P)} chunk3_{k} = true '
-                    ':= by decide +kernel\n\nend Bbbb\n')
+            f.write(f'import Bbbb.Certs3.Data\n\n/-! Generated by `tools/bbbb3/gen3.py`: chunk {k}. -/\n\n'
+                    + HDR)
+            emit_forests(f, f'forest3_{k}', forests)
+            f.write(f'theorem glue3_{k}_ok : checkTree 2 {K} (forest3_{k}s.flatten.map Prod.fst)\n'
+                    f'    {lean_pm(P)} ({lean_tree(glue)}) = true := by decide +kernel\n\n')
+            f.write(f'theorem chunk3_{k}_covered {HH} :\n    Covered 2 {K} {lean_pm(P)} :=\n'
+                    f'  checkTree_sound decTr2_surj (covered_of_mem (forests_covered '
+                    f'(Fs := forest3_{k}s) (forest3_{k}s_covered hh))) _ _ glue3_{k}_ok\n\nend Bbbb\n')
     with open(os.path.join(d, 'Chunks.lean'), 'w') as f:
         f.write(''.join(f'import Bbbb.Certs3.C{k}\n' for k in range(len(chunks))))
-        f.write('\n/-! Generated by `tools/bbbb3/gen3.py`: the top of the tree and the chunks. -/'
-                '\n\nnamespace Bbbb\n\nset_option maxHeartbeats 0\nset_option maxRecDepth 1000000\n\n')
-        f.write(f'/-- the top of the tree, chunks as `.hold` -/\ndef top3 : Tree :=\n  {lean_tree(top)}\n\n')
-        f.write(f'theorem top3_ok : checkTree 2 {K} chunkRoots3 [none, none, none, none, none, none] '
-                'top3 = true := by decide +kernel\n\n')
-        f.write('theorem chunks3_covered (hh : ∀ (k : Nat) (P : PM), holds3[k]? = some P → '
-                f'Covered 2 {K} P) :\n    ∀ (k : Nat) (P : PM), chunkRoots3[k]? = some P → '
-                f'Covered 2 {K} P := by\n  intro k P h\n  match k with\n')
-        for k, (P, C) in enumerate(chunks):
-            f.write(f'  | {k} =>\n    have e : some {lean_pm(P)} = some P := '
-                    f'(show chunkRoots3[{k}]? = some {lean_pm(P)} from rfl).symm.trans h\n'
-                    f'    cases Option.some.inj e; exact checkTree_sound decTr2_surj hh _ _ chunk3_{k}_ok\n')
-        f.write(f'  | _ + {len(chunks)} =>\n    exact absurd h (by rw [List.getElem?_eq_none '
-                f'(by simp [chunkRoots3])]; simp)\n\nend Bbbb\n')
+        f.write('\n/-! Generated by `tools/bbbb3/gen3.py`: the top of the tree. -/\n\n' + HDR)
+        forests = pack(top_items)
+        nforests += len(forests)
+        emit_forests(f, 'forestTop3', forests)
+        f.write(f'/-- the top of the tree: `.hold j` is a root of the top forests, then a chunk -/\n'
+                f'def top3 : Tree :=\n  {lean_tree(top_glue)}\n\n')
+        f.write(f'theorem top3_ok : checkTree 2 {K} (forestTop3s.flatten.map Prod.fst ++ chunkRoots3)\n'
+                f'    [none, none, none, none, none, none] top3 = true := by decide +kernel\n\n')
+        proof = 'fun _ h => absurd h (List.not_mem_nil _)'
+        for k in reversed(range(len(chunks))):
+            proof = f'List.forall_mem_cons.2 ⟨chunk3_{k}_covered hh,\n    {proof}⟩'
+        f.write(f'theorem chunkRoots3_covered {HH} :\n    ∀ P ∈ chunkRoots3, Covered 2 {K} P :=\n'
+                f'  {proof}\n\n')
+        f.write(f'/-- every 3-state machine is covered, given the holdouts -/\n'
+                f'theorem cover3 {HH} :\n    Covered 2 {K} [none, none, none, none, none, none] :=\n'
+                f'  checkTree_sound decTr2_surj (covered_of_mem (List.forall_mem_append.2\n'
+                f'    ⟨forests_covered (Fs := forestTop3s) (forestTop3s_covered hh), '
+                f'chunkRoots3_covered hh⟩)) _ _ top3_ok\n\nend Bbbb\n')
+    print('forest declarations', nforests)
     with open(os.path.join(HERE, 'holdouts3_full.txt'), 'w') as f:
         f.write(''.join(name(P) + '\n' for P in holds))
-    print('chunks', len(chunks), 'holdouts (with symmetric copies)', len(holds),
+    print('chunks', len(chunks), 'top items', len(top_items), 'holdouts (with symmetric copies)', len(holds),
           'distinct up to symmetry', len({canon(P) for P in holds}))
 
 

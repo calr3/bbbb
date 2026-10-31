@@ -414,6 +414,36 @@ theorem checkKids_sound {n K : Nat} {hl : List PM}
     · exact checkKids_sound hsurj hh P i (c + 1) ks h.2 c' e h2
 end
 
+/-! ## forests: many subtrees checked in one declaration -/
+
+/-- every `(P, T)` of the forest checks.  The kernel keeps its caches for a whole declaration,
+so the generated trees are checked as forests of a few dozen leaves each, which keeps the memory
+of a build small. -/
+def checkForest (n K : Nat) (hl : List PM) (F : List (PM × Tree)) : Bool :=
+  F.all (fun x => checkTree n K hl x.1 x.2)
+
+theorem checkForest_sound {n K : Nat} {hl : List PM}
+    (hsurj : ∀ t : Bool × Dir × Fin (n + 1), ∃ c, c < 4 * (n + 1) + 1 ∧ decTr n c = some t)
+    (hh : ∀ (k : Nat) (P : PM), hl[k]? = some P → Covered n K P) {F : List (PM × Tree)}
+    (h : checkForest n K hl F = true) : ∀ x ∈ F, Covered n K x.1 := by
+  intro x hx
+  unfold checkForest at h
+  rw [List.all_eq_true] at h
+  exact checkTree_sound hsurj hh _ _ (h x hx)
+
+/-- the roots of a list of forests are covered if every forest is -/
+theorem forests_covered {n K : Nat} {Fs : List (List (PM × Tree))}
+    (h : ∀ F ∈ Fs, ∀ x ∈ F, Covered n K x.1) : ∀ P ∈ (Fs.flatten.map Prod.fst), Covered n K P := by
+  intro P hP
+  simp only [List.mem_map, List.mem_flatten] at hP
+  obtain ⟨x, ⟨F, hF, hx⟩, rfl⟩ := hP
+  exact h F hF x hx
+
+/-- covered members give covered entries -/
+theorem covered_of_mem {n K : Nat} {l : List PM} (h : ∀ P ∈ l, Covered n K P) :
+    ∀ (k : Nat) (P : PM), l[k]? = some P → Covered n K P :=
+  fun _ P e => h P (List.mem_of_getElem? e)
+
 theorem decTr2_surj (t : Bool × Dir × Fin 3) : ∃ c, c < 13 ∧ decTr 2 c = some t := by
   obtain ⟨w, d, q, hq⟩ := t
   match q, hq, w, d with

@@ -16,7 +16,7 @@ namespace Bbbb
 def Holds3Covered : Prop := ∀ (k : Nat) (P : PM), holds3[k]? = some P → Covered 2 127 P
 
 theorem good3 (hh : Holds3Covered) (M : Machine 3) : Good M 127 :=
-  checkTree_sound decTr2_surj (chunks3_covered hh) _ _ top3_ok M
+  cover3 hh M
     (fun q b c h => by
       obtain ⟨q, hq⟩ := q
       match q, hq, b with
