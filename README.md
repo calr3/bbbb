@@ -6,7 +6,7 @@ the **Beeping Booping Busy Beaver** function (Bram Cohen; definition on the
 states:
 
 * `BBBB(1) = 2`
-* `BBBB(2) = 18` (not 17)
+* `BBBB(2) = 18`
 
 each in all three models of the wiki: arbitrary sets of beep and boop transitions, exactly one
 beep and one boop transition, and one boop transition with every other transition beeping.
