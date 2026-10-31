@@ -19,8 +19,8 @@ boop B1, beep A1 (values 4, 8, 7, 11, 9, then 9 forever).
 
 `enumerate.py NS NSYM N` defines a transition only when the run first reaches it (every machine
 behaves like one of these leaves; halting choices are skipped since they give no g) and fixes the
-first move to the right (mirror symmetry).  This includes machines starting `0R…`, which earlier
-TNF-only searches missed for BBBB(2).
+first move to the right (mirror symmetry).  This includes machines starting `0R…` (the BBBB(2)
+champion is one).
 
 | | non-halting leaves | periodic (by 3000 steps) | holdouts | best periodic g | best holdout g (estimate) |
 |---|---|---|---|---|---|
