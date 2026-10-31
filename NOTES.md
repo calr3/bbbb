@@ -56,7 +56,9 @@ binary counters in various encodings, and exponential bouncers such as
 
 ### Next steps
 
-1. Lean checker for bouncer certificates: symbolic sides and their denotation, soundness of each
+1. Lean checker for bouncer certificates (started: `Symbolic.lean` proves the shift rules,
+   `seg_shift` and `seg_shift_carry`, from one checked window run, `seg_of_wrun`): symbolic sides
+   and their denotation, soundness of each
    operation (`Seg` for all `n`), the normalization identities, then `rounds`.
 2. A generic theorem for transitions made of fixed words and words repeated `a·n + b` times
    (generalizing `Holdouts/Bouncer.lean`): near each item boundary the transitions do not
