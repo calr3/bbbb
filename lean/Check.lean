@@ -11,3 +11,5 @@ open Bbbb
 #print axioms bbbb3_anySets
 #print axioms bbbb3_oneEach
 #print axioms bbbb3_oneBoopRestBeep
+#print axioms champB3_last
+#print axioms bbb3

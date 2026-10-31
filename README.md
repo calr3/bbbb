@@ -32,6 +32,15 @@ theorem bbbb3_anySets (hh : Holds3Covered) : IsBBBB 2 anySets 127   -- and the o
 (`IsBBBB n model t`: every `(n+1)`-state machine with a beep set and a boop set allowed by
 `model` and a finite `g` has `g ≤ t`, and some has `g = t`; definitions in `Defs.lean`.)
 
+## BBB(3) = 55 (Beeping Busy Beaver)
+
+The repository also has a proof of **BBB(3) = 55** for Ligocki's Beeping Busy Beaver (beep state
+`q`; the value is the step of the last visit to `q`), champion `1LB0RB_1RA0LC_1RC1RA`, beep state
+B.  It is proven given 28 holdout leaves (7 machines up to symmetry: five counters, two
+bouncers).  `lean/Bbbb/Bbb/`, theorem `bbb3`.  See [`bbb_3.md`](bbb_3.md) for the method, the
+holdouts and the histogram of all 13⁶ machines by value.  [`bbb_3.txt.gz`](bbb_3.txt.gz) has
+the value of every machine.
+
 ## The BBBB(2) champion
 
 `0RB1LB_1LA1RB`, boop `A1`, beep `A0`.  Its transitions are
