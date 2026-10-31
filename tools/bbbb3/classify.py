@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 from gen import wrun, ret, fit, crit, seqv, BLANK, ANY, WINIT
 
 NS = 3
-K = int(sys.argv[1]) if len(sys.argv) > 1 else 127
+K = 127
 
 
 def sim(M, n):
@@ -148,6 +148,9 @@ def leaves():
 
 
 def main():
+    global K
+    if len(sys.argv) > 1:
+        K = int(sys.argv[1])
     stats = collections.Counter(); holds = []; needB = []
     for M in leaves():
         labs, heads, _ = sim(M, 3000)

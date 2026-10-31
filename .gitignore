@@ -2,3 +2,4 @@ lean/.lake/
 __pycache__/
 tools/bbbb3/tree3.pkl
 tools/bbbb3/*.out
+tools/bbbb3/bouncer_certs.pkl

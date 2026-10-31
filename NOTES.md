@@ -9,13 +9,60 @@
   and 80000, 774 bouncer-like (width ~ √t) and 161 counter-like (width grows very slowly);
   none grows linearly (every translated cycler found got a certificate).
 * Simulation gives `g ≤ 62` for every holdout, so BBBB(3) = 127 is expected.
-* Next: an automated bouncer prover.  A bouncer's round is made of fixed words and blocks
-  repeated a linear number of times; the BBBB(2) bouncer theorem (`Holdouts/Bouncer.lean`)
-  should generalize to such rounds, with a symbolic window run (counts as parameters) checking
-  the round.  Counter-like machines: generalize `Holdouts/Counter.lean` (recurring prefix).
-  For upper bounds it often suffices that an early interval's label factor recurs forever
-  (`factor_interval`), which needs only recurring configurations, not exact rounds; the cases
-  where values grow (no `g`) need the full round structure.
+
+### Holdouts: what each one needs (`tools/bbbb3/analyze_holdouts.py`)
+
+For each of the 935 holdouts and each of the 63 nonempty boop sets (58905 pairs), simulating
+200000 steps:
+
+| case | pairs |
+|---|---|
+| an interval ending before step 127 whose transitions (first boop to last) recur late: `g` is bounded for every beep set (`factor_interval`); the largest such bound is 62 | 55364 (94%) |
+| no boop late in the run: no `g` | 360 |
+| depends on the beep set (an early value recurs, or the values grow) | 3181 (5.4%) |
+
+222 holdouts (117 counter-like, 105 bouncer-like) have no beep-set dependent pairs
+(`holdout_cases.txt`).  The 935 holdouts have 875 different transition sequences (up to renaming
+the transitions), so they need automated provers, not hand proofs.
+
+### Bouncer certificates (`tools/bbbb3/bouncer.py`, prototype for a Lean checker)
+
+A symbolic configuration `C(n)` has tape sides made of cells and words repeated `a·n + b`
+times.  A certificate is the start step `T0` (where the configuration is `C(0)`) and a list of
+operations taking `C(n)` to `C(n+1)` for every `n`:
+* `step`: one concrete step (the head cell, and the next left cell when moving left, are cells);
+* `unroll`: a repeat with `b ≥ 1` becomes one copy as cells and the repeat with `b - 1`;
+* `shift j nc`: in state `q`, with `nc` cells `c` of context on the left, one checked run over
+  `j` copies of the word (no lookahead) leaves the head past them in state `q`, with the left
+  side `w2 ++ c` (`(w2 ++ c)` starting with `c`), or with the context carried along
+  (`c ++ w2`); by induction over the copies, `w^k` becomes `w2^k`;
+* `shiftlook j nc`: the same with one copy of lookahead (needed when crossing a copy peeks at
+  the next one, e.g. a hole travelling with the head); it crosses all copies but the last;
+* `mirror`: switch to the mirror image, so that blocks on the left are crossed the same way.
+The end of the round is compared with `C(n+1)` after normalizing: primitive words
+(`(u^m)^k = u^(mk)`), rotation (`x (w x)^k = (x w)^k x`), merging adjacent repeats of a
+word and absorbing adjacent copies.  Each rule is an identity to prove once in Lean.
+
+The transitions of a round are then fixed transitions and words repeated `a·n + b` times
+(e.g. `1LB1RC_0LC0LA_1RB1LC` from step 23: `C0 (B1 A1 C0)^(n+3) B0 C1^(n+3) C1`).
+
+Status: 743 of the 774 bouncer-like holdouts have a certificate, each checked against
+concrete simulation for the first rounds (`validate`).  Not yet covered: 16 without linearly
+growing rounds (3 with quadratic rounds, e.g. `1LB0LB_0RC1LB_1LA1RC`, whose round crosses the
+block about n times), the rest failing to cross a block or to infer the round's shape.  The
+161 counter-like holdouts need a counter prover (generalizing `Holdouts/Counter.lean`); they are
+binary counters in various encodings, and exponential bouncers such as
+`1LB1RC_1RA1LB_0LB0RA`.
+
+### Next steps
+
+1. Lean checker for bouncer certificates: symbolic sides and their denotation, soundness of each
+   operation (`Seg` for all `n`), the normalization identities, then `rounds`.
+2. A generic theorem for transitions made of fixed words and words repeated `a·n + b` times
+   (generalizing `Holdouts/Bouncer.lean`): near each item boundary the transitions do not
+   depend on `n`, so recurring early factors give the 94% case; intervals between boops have
+   values `α·n + β`, constant (`g` bounded) or growing (no `g`), for the rest.
+3. Counter prover; the remaining bouncers.
 
 ## Exploration (2026-10-31)
 
