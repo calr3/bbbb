@@ -9,15 +9,15 @@ transition; one boop transition with every other transition beeping).
 
 | Value | Known | Champion (beep, boop) | Status in Lean | Remaining holdouts |
 |---|---|---|---|---|
-| `BBBB(1)` | **= 2** | `0RA---` (any, A0) | proven (`Main.lean`) | 0 |
-| `BBBB(2)` | **= 18** | `0RB1LB_1LA1RB` (A0, A1) | proven (`Main.lean`) | 0 (12 proven by hand) |
-| `BBBB(3)` | **≥ 127**, = 127 if the holdouts behave as simulated | `1RB1LB_0RC0LA_1LC0LA` (A0, B1) | lower bound proven; upper bound proven assuming the holdouts (`Main3.lean`) | 3740 leaves of the tree, 935 up to symmetry (774 bouncer-like, 161 counter-like) |
-| `BBBB(2, 3)` | **≥ 187** (simulation only) | `2RB2LA1RA_1LB1LA0RB` (B0, B2) | not started | ~2226 (rough count, before certificates; the champion is one of them) |
+| `BBBB(1)` | **= 2** | [`0RA---`](https://fiery.pages.dev/turing/explore/0RA---) (any, A0) | proven ([`Main.lean`](lean/Bbbb/Main.lean)) | 0 |
+| `BBBB(2)` | **= 18** | [`0RB1LB_1LA1RB`](https://fiery.pages.dev/turing/explore/0RB1LB_1LA1RB) (A0, A1) | proven (`Main.lean`) | 0 (12 proven by hand) |
+| `BBBB(3)` | **≥ 127**, = 127 if the holdouts behave as simulated | [`1RB1LB_0RC0LA_1LC0LA`](https://fiery.pages.dev/turing/explore/1RB1LB_0RC0LA_1LC0LA) (A0, B1) | lower bound proven; upper bound proven assuming the holdouts ([`Main3.lean`](lean/Bbbb/Main3.lean)) | 3740 leaves of the tree, 935 up to symmetry (774 bouncer-like, 161 counter-like) |
+| `BBBB(2, 3)` | **≥ 187** (simulation only) | [`2RB2LA1RA_1LB1LA0RB`](https://fiery.pages.dev/turing/explore/2RB2LA1RA_1LB1LA0RB) (B0, B2) | not started | ~2226 (rough count, before certificates; the champion is one of them) |
 
-For `BBBB(3)` the holdouts are `holds3` (`Certs3/Data.lean`, listed in
-`tools/bbbb3/holdouts3_full.txt`); `Main3.lean` proves the three model statements from the
+For `BBBB(3)` the holdouts are `holds3` ([`Certs3/Data.lean`](lean/Bbbb/Certs3/Data.lean), listed in
+[`tools/bbbb3/holdouts3_full.txt`](tools/bbbb3/holdouts3_full.txt)); `Main3.lean` proves the three model statements from the
 hypothesis `Holds3Covered` (every machine extending a holdout has `g ≤ 127`).  Simulation of
-the holdouts gives `g ≤ 62` for all of them (`NOTES.md`).  `BBBB(2, 3)` is from the
+the holdouts gives `g ≤ 62` for all of them ([`NOTES.md`](NOTES.md)).  `BBBB(2, 3)` is from the
 exploration in `NOTES.md`.
 
 `lake env lean Check.lean` reports only the axioms `propext`, `Classical.choice`, `Quot.sound`
@@ -30,80 +30,91 @@ theorem bbbb3_anySets (hh : Holds3Covered) : IsBBBB 2 anySets 127   -- and the o
 ```
 
 (`IsBBBB n model t`: every `(n+1)`-state machine with a beep set and a boop set allowed by
-`model` and a finite `g` has `g ≤ t`, and some has `g = t`; definitions in `Defs.lean`.)
+`model` and a finite `g` has `g ≤ t`, and some has `g = t`; definitions in [`Defs.lean`](lean/Bbbb/Defs.lean).)
 
 ## BBB(3) = 55 (Beeping Busy Beaver)
 
 The repository also has a proof of **BBB(3) = 55** for Ligocki's Beeping Busy Beaver (beep state
-`q`; the value is the step of the last visit to `q`), champion `1LB0RB_1RA0LC_1RC1RA`, beep state
+`q`; the value is the step of the last visit to `q`), champion [`1LB0RB_1RA0LC_1RC1RA`](https://fiery.pages.dev/turing/explore/1LB0RB_1RA0LC_1RC1RA), beep state
 B.  It is proven given 28 holdout leaves (7 machines up to symmetry: five counters, two
-bouncers).  `lean/Bbbb/Bbb/`, theorem `bbb3`.  See [`bbb_3.md`](bbb_3.md) for the method, the
+bouncers).  [`lean/Bbbb/Bbb/`](lean/Bbbb/Bbb/), theorem `bbb3`.  See [`bbb_3.md`](bbb_3.md) for the method, the
 holdouts and the histogram of all 13⁶ machines by value.  [`bbb_3.txt.gz`](bbb_3.txt.gz) has
 the value of every machine.
 
 ## The BBBB(2) champion
 
-`0RB1LB_1LA1RB`, boop `A1`, beep `A0`.  Its transitions are
+[`0RB1LB_1LA1RB`](https://fiery.pages.dev/turing/explore/0RB1LB_1LA1RB), boop `A1`, beep `A0`.  Its transitions are
 `A0 B0 A0 B1 B0 A1 B0 A0` then `(B1 B1 B1 B0 A1)` forever.  The boops are at steps 6, 13, 18,
 23, … (counting transitions from 1); the first interval has one beep, all later ones none, so
 the value 0 is output forever and first finishes at step 18.  The same holds with beep set
 `{A0, B0, B1}` (every non-boop transition beeps): values 6, 4, 4, 4, ….
 
-Earlier searches gave 17 (`1RB0LB_1LA1RA`, boop `A1`) because they enumerated only machines in
+Earlier searches gave 17 ([`1RB0LB_1LA1RA`](https://fiery.pages.dev/turing/explore/1RB0LB_1LA1RA), boop `A1`) because they enumerated only machines in
 tree normal form starting `1RB`; the champion starts `0RB`.
 
 ## Method
 
 * `Defs.lean`: the definitions (`Machine.QQHaltsAt`, `IsBBBB`, the three models).
-* `Seq.lean`: bounds on `g` from the beep and boop sequences (eventually periodic sequences).
-* `Window.lean`: symbolic simulation on a window of the tape, proving that cyclers and
+* [`Seq.lean`](lean/Bbbb/Seq.lean): bounds on `g` from the beep and boop sequences (eventually periodic sequences).
+* [`Window.lean`](lean/Bbbb/Window.lean): symbolic simulation on a window of the tape, proving that cyclers and
   translated cyclers have eventually periodic transition sequences.
-* `Decider.lean`: certificates (halting / eventually periodic) and their checker; for a periodic
+* [`Decider.lean`](lean/Bbbb/Decider.lean): certificates (halting / eventually periodic) and their checker; for a periodic
   machine, `g ≤ 18` for every beep and boop set as soon as every transition of the period occurs
   twice after the preperiod and before step 18 (true for all 5384 such 2-state machines).
-* `Certs1.lean`, `Certs2.lean`, `Enum2.lean`: generated by `tools/gen.py`; the kernel checks a
+* [`Certs1.lean`](lean/Bbbb/Certs1.lean), [`Certs2.lean`](lean/Bbbb/Certs2.lean), [`Enum2.lean`](lean/Bbbb/Enum2.lean): generated by [`tools/gen.py`](tools/gen.py); the kernel checks a
   certificate for each of the 6561 two-state machines except 12 holdouts.  A clean build takes
   about a minute.
-* `Holdouts/*.lean`, `Holdouts.lean`: the 12 holdouts, 6 machines and their mirror images.
-  * Counters `0RB0LA_1LA1RB`, `1RB1LA_0LA0RB` (`Counters.lean`): increment `x` emits a word
+* [`Holdouts/*.lean`](lean/Bbbb/Holdouts/), [`Holdouts.lean`](lean/Bbbb/Holdouts.lean): the 12 holdouts, 6 machines and their mirror images.
+  * Counters [`0RB0LA_1LA1RB`](https://fiery.pages.dev/turing/explore/0RB0LA_1LA1RB), [`1RB1LA_0LA0RB`](https://fiery.pages.dev/turing/explore/1RB1LA_0LA0RB) ([`Counters.lean`](lean/Bbbb/Holdouts/Counters.lean)): increment `x` emits a word
     depending only on the trailing ones of `x`, so the first 7 increments recur at `8m, …, 8m+6`
     and every interval ending by step 17 recurs; every transition occurs twice by step 17.
-  * Bouncers `1RB1LA_0LA1RB`, `1RB1LA_1LA1RB`, `0RB1LA_1LA1RB` (`Bouncer.lean`,
-    `Bouncers.lean`): rounds `A0 B1^f B0 A1^g` with `f`, `g` increasing; boop sets with A1 or B1
+  * Bouncers [`1RB1LA_0LA1RB`](https://fiery.pages.dev/turing/explore/1RB1LA_0LA1RB), [`1RB1LA_1LA1RB`](https://fiery.pages.dev/turing/explore/1RB1LA_1LA1RB), [`0RB1LA_1LA1RB`](https://fiery.pages.dev/turing/explore/0RB1LA_1LA1RB) ([`Bouncer.lean`](lean/Bbbb/Holdouts/Bouncer.lean),
+    [`Bouncers.lean`](lean/Bbbb/Holdouts/Bouncers.lean)): rounds `A0 B1^f B0 A1^g` with `f`, `g` increasing; boop sets with A1 or B1
     have adjacent boops forever, the others have interval values that are constant (bounded
     `g`) or growing (no `g`).
-  * Bouncer `1RB0LB_1LA0RA` (`Bouncer2.lean`): rounds `(A0 B1)^j A0 B0 (A1 B0)^(j+1)`; every
+  * Bouncer [`1RB0LB_1LA0RA`](https://fiery.pages.dev/turing/explore/1RB0LB_1LA0RA) ([`Bouncer2.lean`](lean/Bbbb/Holdouts/Bouncer2.lean)): rounds `(A0 B1)^j A0 B0 (A1 B0)^(j+1)`; every
     boop set meets a block that recurs in every round.
-* `Witness.lean`, `Main.lean`: the champion and the main theorems.
+* [`Witness.lean`](lean/Bbbb/Witness.lean), `Main.lean`: the champion and the main theorems.
 
 ### Three states
 
-* `Tree.lean`: instead of checking all 13⁶ machines, a tree of partial machines: a node runs
+* [`Tree.lean`](lean/Bbbb/Tree.lean): instead of checking all 13⁶ machines, a tree of partial machines: a node runs
   until it reaches an undefined transition and branches on its 13 choices (halting needs no
   subtree); a machine extending a leaf runs as the leaf does.  Leaves carry a translated-cycler
   certificate, with either the bound check of `Decider.lean` or, per boop set, witnesses for
   every beep set (`critO`, needed by the champion's family whose `g` is exactly 127).
-* `Certs3/`: generated by `tools/bbbb3/gen3.py`: 74196 certified leaves, 7085 nodes, 3740
+* [`Certs3/`](lean/Bbbb/Certs3/): generated by [`tools/bbbb3/gen3.py`](tools/bbbb3/gen3.py): 74196 certified leaves, 7085 nodes, 3740
   holdouts, checked by the kernel (`decide +kernel`).  The kernel keeps its caches for a whole
   declaration, so the tree is cut into 308 chunk files, each a glue tree over forests of about 25
   leaves, one declaration per forest (5471 in all); every Lean process then stays near 0.5 GB.
-* `Exact.lean`, `Champ3.lean`: the exact `g` of an eventually periodic machine by computation;
-  the champion `1RB1LB_0RC0LA_1LC0LA` has `g = 127`.
+* [`Exact.lean`](lean/Bbbb/Exact.lean), [`Champ3.lean`](lean/Bbbb/Champ3.lean): the exact `g` of an eventually periodic machine by computation;
+  the champion [`1RB1LB_0RC0LA_1LC0LA`](https://fiery.pages.dev/turing/explore/1RB1LB_0RC0LA_1LC0LA) has `g = 127`.
 * `Main3.lean`: `BBBB(3) = 127` assuming `Holds3Covered`.
 
 Build: `cd lean && lake build` (a clean build compiles the 3-state chunks in parallel, about 0.5 GB
 each), then `lake env lean Check.lean` prints the axioms.
 
-The core files `Core/Sys.lean`, `Core/Basic.lean`, `Core/Mirror.lean` are from
+The core files [`Core/Sys.lean`](lean/Bbbb/Core/Sys.lean), [`Core/Basic.lean`](lean/Bbbb/Core/Basic.lean), [`Core/Mirror.lean`](lean/Bbbb/Core/Mirror.lean) are from
 [tinycryptids](https://github.com/calr3/tinycryptids).
 
 ## Tooting Terminating Turmites (TTT)
 
 Terminating Turmites (relative-movement TMs: `P` proceed, `T` turn around) with one toot
-transition; the value is the step of the last toot (quasihalting), as in BBB.  See
-[`ttt.md`](ttt.md) and `tools/ttt/`.  **TTT(2) = 13**, **TTT(1,3) = 5** and **TTT(1,4) = 9**
-are proven (every holdout of the tree search has a bouncer or inductive certificate, checked by
-Python programs).  TTT(3) ≥ 90,899 with [`1TB0PA_0PC1PC_1PA0PB`](https://calr3.github.io/bbbb/explore/1TB0PA_0PC1PC_1PA0PB;C1) (toot C1) and TTT(2,3) ≥
-3,015,143 with [`1TB2PB0PB_2TB2PA0PA`](https://calr3.github.io/bbbb/explore/1TB2PB0PB_2TB2PA0PA;A1) (toot A1), both translated cyclers that stop using the
-toot transition; for TTT(3), 15,764 of the 17,542 holdouts are certified (none beats the
-champion) and 1,778 are open, some of them chaotic.
+transition; the value is the step of the last toot (quasihalting), as in BBB.  Definitions,
+results and methods: [`ttt.md`](ttt.md); tools: [`tools/ttt/`](tools/ttt/); certificates and
+open holdouts per domain: [`tools/ttt/results/`](tools/ttt/results/).
+
+* **TTT(2) = 13**, **TTT(1,3) = 5** and **TTT(1,4) = 9** are proven: every holdout of the tree
+  search has a bouncer or inductive certificate (checked by Python programs, not by Lean).
+* **TTT(3) ≥ 90,899** with [`1TB0PA_0PC1PC_1PA0PB`](https://calr3.github.io/bbbb/explore/1TB0PA_0PC1PC_1PA0PB;C1) (toot C1), a translated cycler that stops
+  using the toot transition; 15,764 of the 17,542 holdouts are certified (none beats the
+  champion) and 1,778 are open, some of them chaotic.
+* **TTT(2,3) ≥ 3,015,143** with [`1TB2PB0PB_2TB2PA0PA`](https://calr3.github.io/bbbb/explore/1TB2PB0PB_2TB2PA0PA;A1) (toot A1), also a translated cycler;
+  26,784 of the 32,697 holdouts are certified (none beats the champion) and 5,913 are open.
+
+**[Turmite Explorer](https://calr3.github.io/bbbb/)** draws space-time diagrams of TTs and TTTs
+and reports the last toot: `https://calr3.github.io/bbbb/explore/<machine>[;<toot>]`, e.g.
+[`1TA2PA3PA4PA---;A4`](https://calr3.github.io/bbbb/explore/1TA2PA3PA4PA---;A4).  Source and
+hosting notes: [`tools/ttt/viz/`](tools/ttt/viz/).  Machines in these notes link to it (TT
+form) or to the [fiery.pages.dev explorer](https://fiery.pages.dev/turing/explore/0RB1LB_1LA1RB)
+(BB form); [`tools/ttt/linkify.py`](tools/ttt/linkify.py) adds the links.
