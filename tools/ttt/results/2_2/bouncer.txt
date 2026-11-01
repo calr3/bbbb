@@ -1,0 +1,102 @@
+0PB---_1TA0TB cert 78 inf=A0,B0,B1 fin=
+0PB---_1TA1PA cert 43 inf=A0,B0,B1 fin=
+0PB0PA_1TA1PB fail
+0PB0TA_1TA1PB fail
+0PB1PA_1TA1PB cert 28 inf=A0,A1,B0,B1 fin=
+0PB1PB_1TA1PB cert 22 inf=A1,B0,B1 fin=A0:5
+0PB0PB_1TA1TB cert 78 inf=A0,A1,B0,B1 fin=
+0PB1PA_1TA1TB cert 69 inf=A0,A1,B0,B1 fin=
+0PB1PA_1TB0TA cert 57 inf=A0,A1,B0,B1 fin=
+0PB---_1TB1PB cert 22 inf=B0,B1 fin=A0:1
+0PB1PA_1TB1TA cert 61 inf=A0,A1,B0,B1 fin=
+0TB---_1PA1PB cert 35 inf=A0,B0,B1 fin=
+0TB0PA_1TA1PB fail
+0TB1PA_1TA1PB cert 16 inf=A0,A1,B0,B1 fin=
+0TB1PB_1TA1PB cert 18 inf=A1,B0,B1 fin=A0:3
+0TB1PA_1TA1TB cert 51 inf=A0,A1,B0,B1 fin=
+0TB0PB_1TB0PA cert 112 inf=A0,A1,B0,B1 fin=
+0TB0TA_1TB0PA cert 133 inf=A0,A1,B0,B1 fin=
+0TB1PA_1TB0PA fail
+0TB1TB_1TB0PA cert 91 inf=A0,A1,B0,B1 fin=
+0TB1PB_1TB1PA cert 154 inf=A0,A1,B0,B1 fin=
+0TB---_1TB1PB cert 22 inf=B0,B1 fin=A0:1
+1PB1PA_0TA--- cert 43 inf=A0,A1,B0 fin=
+1PB1PA_0TB1PA cert 43 inf=A0,A1,B0,B1 fin=
+1PB0PA_1TA0PA cert 63 inf=A0,A1,B0,B1 fin=
+1PB0PA_1TA1PA fail
+1PB0PA_1TA1PB fail
+1PB0PB_1TA1PA cert 43 inf=A0,A1,B0,B1 fin=
+1PB0PB_1TA1PB fail
+1PB1PA_1TA--- cert 63 inf=A0,A1,B0 fin=
+1PB1PB_1TA1PA cert 43 inf=A0,A1,B0,B1 fin=
+1PB1PB_1TA1PB cert 28 inf=A1,B0,B1 fin=A0:1
+1PB---_1TB0PA cert 63 inf=A0,B0,B1 fin=
+1PB1TA_1TB0TA cert 92 inf=A0,A1,B0,B1 fin=
+1PB0PB_1TB1PA cert 81 inf=A0,A1,B0,B1 fin=
+1PB0TA_1TB1PA cert 87 inf=A0,A1,B0,B1 fin=
+1PB1PA_1TB1PA cert 63 inf=A0,A1,B0,B1 fin=
+1PB1PB_1TB1PA cert 63 inf=A0,A1,B0,B1 fin=
+1PB---_1TB1PB cert 28 inf=B0,B1 fin=A0:1
+1TA0PB_0TA0PA cert 80 inf=A0,A1,B0,B1 fin=
+1TA0PB_0TA0TB cert 171 inf=A0,A1,B0,B1 fin=
+1TA0PB_0TA1PB fail
+1TA0PB_0TA1TA cert 90 inf=A0,A1,B0,B1 fin=
+1TA0PB_1PA--- cert 49 inf=A0,A1,B0 fin=
+1TA0PB_1TB1PA cert 73 inf=A0,A1,B0,B1 fin=
+1TA0PB_1TB1PB cert 28 inf=B0,B1 fin=A0:2,A1:3
+1TA0PB_1TB1TA cert 90 inf=A0,A1,B0,B1 fin=
+1TA0TB_0PA1PB cert 35 inf=A0,A1,B0,B1 fin=
+1TA0TB_1TB1PB cert 31 inf=B0,B1 fin=A0:2,A1:3
+1TA0TB_1PA1TB cert 70 inf=A0,A1,B0,B1 fin=
+1TA1PA_------ cert 28 inf=A0,A1 fin=
+1TA1PB_0TA1PA cert 90 inf=A0,A1,B0,B1 fin=
+1TA1PB_1PA0PA cert 61 inf=A0,A1,B0,B1 fin=
+1TA1PB_1PA0TB cert 67 inf=A0,A1,B0,B1 fin=
+1TA1PB_1PA1PA cert 49 inf=A0,A1,B0,B1 fin=
+1TA1PB_1PA1PB cert 49 inf=A0,A1,B0,B1 fin=
+1TA1PB_1TA0PA cert 66 inf=A0,A1,B0,B1 fin=
+1TA1PB_1TA0TB cert 120 inf=A0,A1,B0,B1 fin=
+1TA1PB_1TA1PA cert 28 inf=A0,A1,B0,B1 fin=
+1TA1PB_1TA1PB cert 45 inf=A1,B0,B1 fin=A0:2
+1TA1PB_1TB0PA cert 93 inf=A0,A1,B0,B1 fin=
+1TA1PB_1TB1PA cert 91 inf=A0,A1,B0,B1 fin=
+1TA1PB_1TB1PB cert 45 inf=B0,B1 fin=A0:2,A1:3
+1TA1TB_0PB0PA fail
+1TA1TB_1TB0PA cert 50 inf=A0,A1,B0,B1 fin=
+1TA1TB_0PA1PB cert 45 inf=A0,A1,B0,B1 fin=
+1TA1TB_1TB1PB cert 37 inf=B0,B1 fin=A0:2,A1:3
+1TB0TA_0PA--- cert 77 inf=A0,A1,B0 fin=
+1TB1PA_0PA0PB fail
+1TB1PA_0PA0TB fail
+1TB1PA_0PA1PA cert 45 inf=A0,A1,B1 fin=B0:4
+1TB1PA_0PA1PB cert 35 inf=A0,A1,B0,B1 fin=
+1TB1PB_0PA--- cert 56 inf=A0,A1,B0 fin=
+1TB1TA_0PA0PA cert 77 inf=A0,A1,B0,B1 fin=
+1TB1TA_0PA1PB cert 68 inf=A0,A1,B0,B1 fin=
+1TB1PA_0TA0PB fail
+1TB1PA_0TA1PA cert 30 inf=A0,A1,B1 fin=B0:2
+1TB1PA_0TA1PB cert 24 inf=A0,A1,B0,B1 fin=
+1TB1TA_0TA1PB cert 40 inf=A0,A1,B0,B1 fin=
+1TB1PA_0TB1PA cert 30 inf=A0,A1,B1 fin=B0:2
+1TB1PB_0TB1PA cert 133 inf=A0,A1,B0,B1 fin=
+1TB1PA_1PA0PA fail
+1TB1PB_1PA0PA cert 56 inf=A0,A1,B0,B1 fin=
+1TB0PB_1PA0PB cert 182 inf=A0,A1,B0,B1 fin=
+1TB1PA_1PA0PB fail
+1TB1PB_1PA0PB fail
+1TB1PA_1PA1PA cert 35 inf=A0,A1,B1 fin=B0:2
+1TB1PB_1PA1PA cert 56 inf=A0,A1,B0,B1 fin=
+1TB---_1PA1PB cert 56 inf=A0,B0,B1 fin=
+1TB0PB_1TA1PA cert 94 inf=A0,A1,B0,B1 fin=
+1TB0PB_1TA1PB fail
+1TB1PA_1TA0PA fail
+1TB1PA_1TA1PA cert 45 inf=A0,A1,B1 fin=B0:2
+1TB1PA_1TA1PB cert 28 inf=A0,A1,B0,B1 fin=
+1TB1PB_1TA0PA cert 69 inf=A0,A1,B0,B1 fin=
+1TB1PB_1TA1PA cert 91 inf=A0,A1,B0,B1 fin=
+1TB1PB_1TA1PB cert 28 inf=A1,B0,B1 fin=A0:1
+1TB0PB_1TB1PA cert 66 inf=A0,A1,B0,B1 fin=
+1TB0TA_1TB1PA cert 120 inf=A0,A1,B0,B1 fin=
+1TB1PA_1TB1PA cert 45 inf=A0,A1,B1 fin=B0:2
+1TB1PB_1TB1PA cert 28 inf=A0,A1,B0,B1 fin=
+1TB---_1TB1PB cert 28 inf=B0,B1 fin=A0:1

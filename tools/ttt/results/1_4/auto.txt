@@ -1,0 +1,5 @@
+1TA2PA0PA--- cert 17 inf=A0,A1,A2 fin= lemmas=3
+1TA2PA3PA0TA cert 19 inf=A0,A1,A2,A3 fin= lemmas=3
+1TA2PA3PA1TA cert 17 inf=A0,A1,A2,A3 fin= lemmas=3
+1TA2TA3PA0PA cert 31 inf=A0,A1,A2,A3 fin= lemmas=5
+1TA2TA3PA1PA cert 63 inf=A0,A1,A2,A3 fin= lemmas=9

@@ -6,3 +6,6 @@ tools/bbbb3/bouncer_certs.pkl
 tools/bbb3/*.pkl
 tools/ttt/ttt
 tools/ttt/longrun
+tools/ttt/ttt_big
+tools/ttt/growthc
+tools/ttt/results/*/h1.txt

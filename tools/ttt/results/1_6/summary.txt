@@ -1,0 +1,12 @@
+126/136 holdouts certified; largest last use of a transition used finitely often: 0 (None toot None)
+10 open
+  open 1TA2PA3PA4PA0PA---
+  open 1TA2PA3PA4PA5PA0TA
+  open 1TA2PA3PA4PA5PA1PA
+  open 1TA2PA3PA4PA5PA1TA
+  open 1TA2PA3PA4TA5PA0PA
+  open 1TA2PA3PA4TA5PA1PA
+  open 1TA2TA3PA4PA5PA1PA
+  open 1TA2TA3PA4TA0PA---
+  open 1TA2TA3PA4TA5PA1TA
+  open 1TA2TA3TA4PA5TA1PA

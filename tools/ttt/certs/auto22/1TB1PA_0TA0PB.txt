@@ -1,0 +1,7 @@
+machine 1TB1PA_0TA0PB, round configuration C(0) at step 25
+lemma L60 (j >= 0):
+    A  ahead: (0)^(1j) [X]  behind: 1 1 1 0 [B]
+  ->A  ahead:  [XA]  behind: (1)^(1j+3) [B]
+round round (j >= 0):
+    A  ahead:  [B]  behind: (1)^(1j+3) [B]
+  ->A  ahead:  [B]  behind: (1)^(1j+4) [B]

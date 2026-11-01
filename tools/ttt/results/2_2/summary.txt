@@ -1,0 +1,3 @@
+102/102 holdouts certified; largest last use of a transition used finitely often: 5 (0PB1PB_1TA1PB toot A0)
+all certified holdouts are below the bound
+0 open

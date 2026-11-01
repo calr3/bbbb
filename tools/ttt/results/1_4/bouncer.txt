@@ -1,0 +1,20 @@
+1TA1PA------ cert 28 inf=A0,A1 fin=
+1TA2PA0PA--- fail
+1TA2PA1PA--- cert 28 inf=A0,A1,A2 fin=
+1TA2PA2PA--- cert 28 inf=A0,A1,A2 fin=
+1TA2PA3PA0TA fail
+1TA2PA3PA1PA cert 190 inf=A0,A1,A2,A3 fin=
+1TA2PA3PA1TA fail
+1TA2PA3PA2PA cert 28 inf=A0,A1,A2,A3 fin=
+1TA2PA3PA2TA cert 40 inf=A0,A1,A2,A3 fin=
+1TA2PA3PA3PA cert 28 inf=A0,A1,A2,A3 fin=
+1TA2TA1PA--- cert 52 inf=A0,A1,A2 fin=
+1TA2TA2PA--- cert 46 inf=A0,A1,A2 fin=
+1TA2TA3PA0PA fail
+1TA2TA3PA1PA fail
+1TA2TA3PA2PA cert 46 inf=A0,A1,A2,A3 fin=
+1TA2TA3PA2TA cert 52 inf=A0,A1,A2,A3 fin=
+1TA2TA3PA3PA cert 46 inf=A0,A1,A2,A3 fin=
+1TA2TA3TA1PA cert 76 inf=A0,A1,A2,A3 fin=
+1TA2TA3TA2PA cert 58 inf=A0,A1,A2,A3 fin=
+1TA2TA3TA3PA cert 64 inf=A0,A1,A2,A3 fin=

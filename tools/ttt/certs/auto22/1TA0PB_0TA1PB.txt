@@ -1,0 +1,13 @@
+machine 1TA0PB_0TA1PB, round configuration C(0) at step 105
+lemma L24 (j >= 0):
+    A  ahead: (1)^(2j) 0 0 0 [X]  behind: 0 0 0 [X]
+  ->B  ahead:  [XA]  behind: (1)^(2j+4) 0 1 [XB]
+lemma L17 (j >= 0):
+    A  ahead: (1)^(2j+2) 0 0 0 [X]  behind: 0 0 0 [B]
+  ->B  ahead:  [XA]  behind: (1)^(2j+6) 0 1 [B]
+lemma L16 (j >= 0):
+    A  ahead: (1)^(2j) 0 0 0 [X]  behind: 0 0 0 [B]
+  ->B  ahead:  [XA]  behind: (1)^(2j+4) 0 1 [B]
+round round (j >= 0):
+    B  ahead:  [B]  behind: (1)^(2j+4) 0 1 [B]
+  ->B  ahead:  [B]  behind: (1)^(2j+6) 0 1 [B]

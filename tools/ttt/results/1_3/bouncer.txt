@@ -1,0 +1,6 @@
+1TA1PA--- cert 28 inf=A0,A1 fin=
+1TA2PA0PA fail
+1TA2PA1PA cert 28 inf=A0,A1,A2 fin=
+1TA2PA2PA cert 28 inf=A0,A1,A2 fin=
+1TA2TA1PA cert 52 inf=A0,A1,A2 fin=
+1TA2TA2PA cert 46 inf=A0,A1,A2 fin=

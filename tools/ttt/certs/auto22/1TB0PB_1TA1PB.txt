@@ -1,0 +1,25 @@
+machine 1TB0PB_1TA1PB, round configuration C(0) at step 95
+lemma L134 (j >= 0):
+    A  ahead: (1)^(4j+11) 0 1 1 [X]  behind: 1 1 1 [X]
+  ->B  ahead:  [XA]  behind: (1)^(4j+17) [XB]
+lemma L131 (j >= 0):
+    A  ahead: (1)^(4j+8) 0 1 1 [X]  behind: 1 1 1 [B]
+  ->B  ahead:  [XA]  behind: (1)^(4j+13) 0 1 [B]
+lemma L127 (j >= 0):
+    A  ahead: (1)^(4j+6) 0 1 [X]  behind: 1 1 [B]
+  ->B  ahead:  [XA]  behind: (1)^(4j+9) 0 1 [B]
+lemma L143 (j >= 0):
+    A  ahead: (1)^(4j+9) 0 1 [X]  behind: 1 1 1 [B]
+  ->B  ahead:  [XA]  behind: (1)^(4j+14) [B]
+lemma L138 (j >= 0):
+    A  ahead: (1)^(4j+7) 0 [X]  behind: 1 1 [B]
+  ->B  ahead:  [XA]  behind: (1)^(4j+10) [B]
+lemma L151 (j >= 0):
+    A  ahead: (1)^(4j+11) 0 1 [X]  behind: 1 1 1 [B]
+  ->B  ahead:  [XA]  behind: (1)^(4j+16) [B]
+lemma L147 (j >= 0):
+    A  ahead: (1)^(4j+9) 0 [X]  behind: 1 1 [B]
+  ->B  ahead:  [XA]  behind: (1)^(4j+12) [B]
+round round (j >= 0):
+    B  ahead:  [B]  behind: (1)^(4j+8) 0 1 [B]
+  ->B  ahead:  [B]  behind: (1)^(4j+12) 0 1 [B]

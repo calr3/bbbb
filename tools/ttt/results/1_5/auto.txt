@@ -1,0 +1,18 @@
+1TA2PA0PA------ cert 17 inf=A0,A1,A2 fin= lemmas=3
+1TA2PA3PA0TA--- cert 19 inf=A0,A1,A2,A3 fin= lemmas=3
+1TA2PA3PA1TA--- cert 17 inf=A0,A1,A2,A3 fin= lemmas=3
+1TA2PA3PA4PA0PA fail
+1TA2PA3PA4TA0TA cert 21 inf=A0,A1,A2,A3,A4 fin= lemmas=2
+1TA2PA3PA4TA1TA cert 19 inf=A0,A1,A2,A3,A4 fin= lemmas=3
+1TA2PA3PA4TA2PA cert 17 inf=A0,A1,A2,A3,A4 fin= lemmas=3
+1TA2TA3PA0PA--- cert 31 inf=A0,A1,A2,A3 fin= lemmas=5
+1TA2TA3PA1PA--- cert 63 inf=A0,A1,A2,A3 fin= lemmas=9
+1TA2TA3PA4PA0TA cert 35 inf=A0,A1,A2,A3,A4 fin= lemmas=3
+1TA2TA3PA4PA1TA cert 31 inf=A0,A1,A2,A3,A4 fin= lemmas=5
+1TA2TA3PA4PA2TA cert 27 inf=A0,A1,A2,A3,A4 fin= lemmas=5
+1TA2TA3PA4TA0PA fail
+1TA2TA3TA4PA0PA cert 49 inf=A0,A1,A2,A3,A4 fin= lemmas=5
+1TA2TA3TA4PA1PA cert 141 inf=A0,A1,A2,A3,A4 fin= lemmas=11
+1TA2TA3TA4PA2PA cert 37 inf=A0,A1,A2,A3,A4 fin= lemmas=5
+1TA2PA3PA4PA0PA fail
+1TA2TA3PA4TA0PA fail

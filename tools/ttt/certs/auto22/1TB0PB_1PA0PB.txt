@@ -1,0 +1,4 @@
+machine 1TB0PB_1PA0PB, round configuration C(0) at step 89
+round round (j >= 0):
+    B  ahead:  [B]  behind: (01)^(2j+4) (10)^(2j+4) 1 [B]
+  ->B  ahead:  [B]  behind: (01)^(2j+6) (10)^(2j+6) 1 [B]
