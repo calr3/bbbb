@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Turmite Explorer</title>
+<script>
+// GitHub Pages serves this page for unknown paths.  Turn <base>/explore/<machine> into
+// <base>/?m=<machine>; the explorer then shows the machine and restores the /explore/ URL.
+(function () {
+  var p = location.pathname, i = p.indexOf('/explore/');
+  if (i >= 0) {
+    location.replace(p.slice(0, i + 1) + '?m=' + encodeURIComponent(decodeURIComponent(p.slice(i + 9))));
+  } else {
+    document.addEventListener('DOMContentLoaded', function () { document.body.hidden = false; });
+  }
+})();
+</script>
+</head>
+<body hidden>
+<p>Not found. <a href="./">Turmite Explorer</a></p>
+</body>
+</html>
