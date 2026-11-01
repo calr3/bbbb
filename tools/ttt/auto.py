@@ -23,6 +23,7 @@ import bouncer_ttt                          # noqa: E402  (patches bouncer for t
 import bouncer                              # noqa: E402
 
 NAMES = [0]
+MODE = ['direct']   # search order of the candidate lemmas: 'direct' first, then 'size'
 MAXIA = int(os.environ.get("AUTO_IA", 4))
 MAXIB = int(os.environ.get("AUTO_IB", 3))
 MAXLEMMAS = int(os.environ.get("AUTO_BUDGET", 16))
@@ -165,7 +166,37 @@ def prove_with_discovery(T, L, lemmas, depth=0, budget=None):
             if all(C.pre != D.pre for _, D in cands):
                 cands.append((-size, C))
     cands.sort(key=lambda x: x[0])
+    if MODE[0] == 'size':
+        # larger regions first, each with its own sub-discovery
+        for _, C in cands:
+            if budget[0] <= 0:
+                return False
+            budget[0] -= 1
+            sub = list(lemmas)
+            if not prove_with_discovery(T, C, sub, depth + 1, budget):
+                continue
+            sub.append(C)
+            if prove_with_discovery(T, L, sub, depth, budget):
+                lemmas[:] = sub
+                return True
+        return False
+    # phase 1: candidates that prove without sub-lemmas (cheap); phase 2: with sub-lemmas
+    direct, rest = [], []
     for _, C in cands:
+        try:
+            induct.prove(T, C, list(lemmas))
+            direct.append(C)
+        except Fail:
+            rest.append(C)
+    for C in direct:
+        if budget[0] <= 0:
+            return False
+        budget[0] -= 1
+        sub = list(lemmas) + [C]
+        if prove_with_discovery(T, L, sub, depth, budget):
+            lemmas[:] = sub
+            return True
+    for C in rest:
         if budget[0] <= 0:
             return False
         budget[0] -= 1
@@ -180,11 +211,15 @@ def prove_with_discovery(T, L, lemmas, depth=0, budget=None):
 
 
 def rounds(T):
-    for N in (60000, 1000000):
+    """record sequences from a short run, then from a longer one (a regular phase may start
+    only after a long transient)"""
+    out = []
+    for N in (60000, 600000):
         r = rounds_n(T, N)
-        if r:
-            return r
-    return []
+        out.extend(r[:6])
+    if not out:
+        out = rounds_n(T, 1000000)
+    return out
 
 
 def rounds_n(T, N):
@@ -219,14 +254,15 @@ def rounds_n(T, N):
     return [c[3] for c in cands]
 
 
-def certificate(nm):
+def certificate_mode(nm):
     T = induct.turmite(nm)
     tried = 0
     for ts in rounds(T):
-        if tried >= 4:
+        if tried >= 6:
             break
-        for k0 in (2, 4, 6):
-            if k0 + 5 > len(ts):
+        # early records, and late ones (after a chaotic transient the regular phase starts late)
+        for k0 in list(dict.fromkeys([2, 4, 6, len(ts) - 8, len(ts) - 6])):
+            if k0 < 0 or k0 + 5 > len(ts):
                 continue
             times = ts[k0:k0 + 5]
             cfgs = [induct.concrete(T, t)[0] for t in times]
@@ -243,7 +279,6 @@ def certificate(nm):
             lemmas = []
             if prove_with_discovery(T, R, lemmas):
                 return {'machine': nm, 'T0': times[0], 'lemmas': lemmas, 'round': R}
-            break                      # another k0 for the same records rarely helps
     return None
 
 
@@ -272,6 +307,16 @@ def describe(c):
         lines.append(f"    {fmt_cfg(L.pre)}")
         lines.append(f"  ->{fmt_cfg(L.post)}")
     return '\n'.join(lines) + '\n'
+
+
+def certificate(nm):
+    """try both search orders for the lemmas"""
+    for mode in ('direct', 'size'):
+        MODE[0] = mode
+        c = certificate_mode(nm)
+        if c is not None:
+            return c
+    return None
 
 
 class Timeout(Exception):
