@@ -266,7 +266,9 @@ class Run:
             if pq != q:
                 continue
             forcings = [(1, 0)] if is_ih else [None, (1, 0), (1, 1), (1, -1), (0, L.j0)]
-            for forced, An, Bn in itertools.product(forcings, norms(A, ea), norms(B, eb)):
+            pats = [(x, y) for x in norms(pA, 'X' if pea == 'X' else 'B')
+                    for y in norms(pB, 'X' if peb == 'X' else 'B')]
+            for (pA, pB), forced, An, Bn in itertools.product(pats, forcings, norms(A, ea), norms(B, eb)):
                     ra = match_prefix(pA, An, self.k0, forced, ea)
                     if ra is None:
                         continue

@@ -36,7 +36,7 @@ halting machine toots finitely often).  In every case below the TTT champion doe
 | TTT(1,5) | **≥ 13** | `1TA2PA3PA4PA---` (A4) | 13 | 53 of 55 holdouts certified (2 mixed-radix counters open). Probably = 13 |
 | TTT(1,6) | **≥ 19** | `1TA2PA3PA4PA5PA---` (A5) | 19 | 126 of 136 holdouts certified. Probably = 19 |
 | TTT(2,2) | **= 13** | `0TB0PB_1TB1PA` (A1), or the TT champion `1TB---_1PA0PB` (A1) | 13 | proven: all 102 holdouts certified (85 bouncers, 17 counters / exponential and cubic bouncers) |
-| TTT(3,2) | **≥ 90,899** (= 90,899 conjectured) | `1TB0PA_0PC1PC_1PA0PB` (C1) | 82 | 15,618 of 17,542 holdouts certified, none above 59; 1,924 open |
+| TTT(3,2) | **≥ 90,899** (= 90,899 conjectured) | `1TB0PA_0PC1PC_1PA0PB` (C1) | 82 | 15,764 of 17,542 holdouts certified, none above 59; 1,778 open |
 | TTT(2,3) | **≥ 3,015,143** | `1TB2PB0PB_2TB2PA0PA` (A1) | 223 | 26,432 of 32,697 holdouts certified, none above 14,101; 6,265 open. Conjecture: =3,015,143. |
 | TTT(4,2) | **≥ 48,186** | TT champion `1TB1PA_1PC0PA_1TA0PD_---1TA` (D0, the halt) | ≥ 48,186 | from TT only; a 20,000-step tree search found nothing it could decide beyond its step limit |
 | TTT(2,4) | **> 3.467·10¹⁵** | TT champion `1TA2PB3TB---_3TA1PB1TA1PA` (A3, the halt) | > 3.467·10¹⁵ | from TT only |
@@ -163,7 +163,10 @@ same):
       step:  Z(k) on the lower k digits, B0, sweep A1 over 1^k, Z(k) again, B1
     round C(n) -> C(n+1):  Z(n), B1, the new digit B0, sweep A1 over 1^(n+1)
 
-`auto.py` guesses the statements.  It infers `C(j)` from records (head on a fresh cell), and
+`auto.py` guesses the statements (second pass, `results/3_2/auto2.txt`: lemma patterns are
+also matched in normal form, so `(00)^(j+1) 0` matches `0^(2k+5)`; candidate lemmas that prove
+without sub-lemmas are tried first, then the larger-region-first search; round shapes are also
+inferred from late records and from a 10× longer run).  It infers `C(j)` from records (head on a fresh cell), and
 when the symbolic run is stuck in front of a repeat it cannot cross, it takes the region around
 the head as a premise.  It reads the conclusion off concrete runs of the premise for several
 `j`, until the head first reads outside the region on the far side, and tries to prove it
@@ -180,11 +183,14 @@ holdout: `cert T0 inf=<used forever> fin=<transition:last use>` or `fail`) and `
 | (1, 3) | 6 | 5 | | 1 | 0 | 0 |
 | (1, 4) | 20 | 15 | | 5 | 0 | 0 |
 | (2, 2) | 102 | 85 | | 17 | 0 | 5 |
-| (3, 2) | 17,542 | 14,448 | 16 | 1,154 | 1,924 | 59 |
+| (3, 2) | 17,542 | 14,448 | 16 | 1,300 | 1,778 | 59 |
 | (2, 3) | 32,697 | 24,068 | 33 | 2,331 | 6,265 | 14,101 |
 
-**What is still open.**  For TTT(3,2) the 1,924 open holdouts are (by tape growth) 900
-√t-bouncers, 382 cubic bouncers, 641 counters and 1 linear.  Some are chaotic
+**What is still open.**  For TTT(3,2) the 1,778 open holdouts are (by tape growth) 897
+√t-bouncers, 379 cubic bouncers, 501 counters and 1 linear.  In a sample of 200 open
+holdouts, about two thirds have no regular round shape at all (records whose tapes are not
+of the form cells and linearly growing repeats, even late in the run): many of these are
+chaotic, or carry irregular debris that the bouncer keeps rewriting.  Some are chaotic
 (e.g. `0TB1PB_1PA0PC_1TB1PC` above, and machines whose tape looks random), which these methods
 cannot handle.  The rest need better lemma guessing (regions spanning several repeats, several
 counters, mixed-radix digits).  For TTT(2,3) the 6,265 open holdouts are 3,354
