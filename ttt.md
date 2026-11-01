@@ -15,12 +15,12 @@ starts in state `A`, facing right, on a blank (all-0) tape.  An undefined transi
 halts.  The halting step counts as a step: it is the `1PZ` of the TT notation, so `1TA---`
 here is `1TA1PZ` there.
 
-A **tooting** TT also picks one **toot transition**, a pair `(state, symbol)` such as `C1`.  It
-is a transition, not a state.  The machine toots every time it executes that transition.  If it
+A **tooting** TT also picks one **toot transition**, a pair `(state, symbol)` such as `C1`. 
+The machine toots every time it executes that transition.  If it
 toots finitely often, it **quasihalts** at its last toot.  Its value `t(M)` is the step number
 of that last toot, counting steps from 1.  The value is 0 if it never toots.
 
-    TTT(n, m) = max { t(M) : M an n-state m-symbol tooting TT with finitely many toots }
+    TTT(n,m) = max { t(M) : M an n-state m-symbol tooting TT with finitely many toots }
 
 The toot transition may be the halting transition.  A halting machine that toots when it halts
 has `t(M)` = its halting time, so **TTT(n, m) ≥ TT(n, m)**.  Halting machines are allowed (a
@@ -30,16 +30,16 @@ halting machine toots finitely often).  In every case below the TTT champion doe
 
 | Domain | TTT value | Champion (toot) | TT for comparison | Status |
 |---|---|---|---|---|
-| TTT(1, 2) | **= 3** | `1TA---` (A1) | 3 | proven: the one holdout is certified |
-| TTT(1, 3) | **= 5** | `1TA2PA---` (A2) | 5 | proven: all 6 holdouts certified |
-| TTT(1, 4) | **= 9** | `1TA2PA3PA---` (A3) | 9 | proven: all 20 holdouts certified |
-| TTT(1, 5) | **≥ 13** (= 13 conjectured) | `1TA2PA3PA4PA---` (A4) | 13 | 53 of 55 holdouts certified (2 mixed-radix counters open) |
-| TTT(1, 6) | **≥ 19** (= 19 conjectured) | `1TA2PA3PA4PA5PA---` (A5) | 19 | 126 of 136 holdouts certified |
-| TTT(2, 2) | **= 13** | `0TB0PB_1TB1PA` (A1), or the TT champion `1TB---_1PA0PB` (A1) | 13 | proven: all 102 holdouts certified (85 bouncers, 17 counters / exponential and cubic bouncers) |
-| TTT(3, 2) | **≥ 90,899** (= 90,899 conjectured) | `1TB0PA_0PC1PC_1PA0PB` (C1) | 82 | 15,618 of 17,542 holdouts certified, none above 59; 1,924 open |
-| TTT(2, 3) | **≥ 3,015,143** (= 3,015,143 conjectured) | `1TB2PB0PB_2TB2PA0PA` (A1) | 223 | 26,432 of 32,697 holdouts certified, none above 14,101; 6,265 open |
-| TTT(4, 2) | **≥ 48,186** | TT champion `1TB1PA_1PC0PA_1TA0PD_---1TA` (D0, the halt) | ≥ 48,186 | from TT only; a 20,000-step tree search found nothing it could decide beyond its step limit |
-| TTT(2, 4) | **> 3.467·10¹⁵** | TT champion `1TA2PB3TB---_3TA1PB1TA1PA` (A3, the halt) | > 3.467·10¹⁵ | from TT only |
+| TTT(1,2) | **= 3** | `1TA---` (A1) | 3 | proven: the one holdout is certified |
+| TTT(1,3) | **= 5** | `1TA2PA---` (A2) | 5 | proven: all 6 holdouts certified |
+| TTT(1,4) | **= 9** | `1TA2PA3PA---` (A3) | 9 | proven: all 20 holdouts certified |
+| TTT(1,5) | **≥ 13** | `1TA2PA3PA4PA---` (A4) | 13 | 53 of 55 holdouts certified (2 mixed-radix counters open). Probably = 13 |
+| TTT(1,6) | **≥ 19** | `1TA2PA3PA4PA5PA---` (A5) | 19 | 126 of 136 holdouts certified. Probably = 19 |
+| TTT(2,2) | **= 13** | `0TB0PB_1TB1PA` (A1), or the TT champion `1TB---_1PA0PB` (A1) | 13 | proven: all 102 holdouts certified (85 bouncers, 17 counters / exponential and cubic bouncers) |
+| TTT(3,2) | **≥ 90,899** (= 90,899 conjectured) | `1TB0PA_0PC1PC_1PA0PB` (C1) | 82 | 15,618 of 17,542 holdouts certified, none above 59; 1,924 open |
+| TTT(2,3) | **≥ 3,015,143** | `1TB2PB0PB_2TB2PA0PA` (A1) | 223 | 26,432 of 32,697 holdouts certified, none above 14,101; 6,265 open. Conjecture: =3,015,143. |
+| TTT(4,2) | **≥ 48,186** | TT champion `1TB1PA_1PC0PA_1TA0PD_---1TA` (D0, the halt) | ≥ 48,186 | from TT only; a 20,000-step tree search found nothing it could decide beyond its step limit |
+| TTT(2,4) | **> 3.467·10¹⁵** | TT champion `1TA2PB3TB---_3TA1PB1TA1PA` (A3, the halt) | > 3.467·10¹⁵ | from TT only |
 
 "Proven" means: the tree search (`ttt.c`) decides every machine except the holdouts, and every
 holdout has a certificate checked by `bouncer_ttt.py` or `induct.py` showing that each of its
@@ -55,13 +55,13 @@ the toot transition is not in that period.
 
 ### The champions
 
-* **TTT(2, 2) = 13**, `0TB0PB_1TB1PA` toot A1.  It toots twice, at steps 7 and 13.
+* **TTT(2,2) = 13**, `0TB0PB_1TB1PA` toot A1.  It toots twice, at steps 7 and 13.
   From step 16 the machine is a cycler of period 4 using only A0 and B1.  The TT champion
   `1TB---_1PA0PB`, tooting on its halting transition, also scores 13, so TTT(2) = TT(2).
-* **TTT(3, 2) ≥ 90,899**, `1TB0PA_0PC1PC_1PA0PB` toot C1.  It toots 16,081 times; the last
+* **TTT(3,2) ≥ 90,899**, `1TB0PA_0PC1PC_1PA0PB` toot C1.  It toots 16,081 times; the last
   toot is at step 90,899.  From step 90,913 it is a translated cycler of period 29 that uses
   A0, A1, B0, B1, C0 but never C1.  For comparison, TT(3) ≥ 82 and BBB(3) = 55.
-* **TTT(2, 3) ≥ 3,015,143**, `1TB2PB0PB_2TB2PA0PA` toot A1.  It toots 129,411 times; the last
+* **TTT(2,3) ≥ 3,015,143**, `1TB2PB0PB_2TB2PA0PA` toot A1.  It toots 129,411 times; the last
   toot is at step 3,015,143.  From step 3,015,163 it is a translated cycler of period 9 using
   A0, A2, B0, B1, B2.  For comparison, TT(2, 3) ≥ 223.
 
@@ -87,7 +87,7 @@ when two holes line up next to the head.  That happens more and more rarely as t
 (like √t), but probably infinitely often.  The second machine walls off its right part at step
 ~130,000 and churns chaotically on the left; it breaks through again at step 2.4·10⁹.  These
 are the TTT analogue of BBB's chaotic "probviously infinite" holdouts.  Because of them,
-TTT(3, 2) and TTT(2, 3) are given as lower bounds.  All other apparent quasihalters among the
+TTT(3,2) and TTT(2,3) are given as lower bounds.  All other apparent quasihalters among the
 3-state holdouts stop tooting by step 452.  Among the 2-state, 3-symbol holdouts they stop by
 step 921,268, below the champion.
 
@@ -161,7 +161,7 @@ when the symbolic run is stuck in front of a repeat it cannot cross, it takes th
 the head as a premise.  It reads the conclusion off concrete runs of the premise for several
 `j`, until the head first reads outside the region on the far side, and tries to prove it
 (recursively discovering sub-lemmas, with backtracking).  Only the checker matters for
-soundness.  The lemma statements found for TTT(2, 2) are in `certs/auto22/`.
+soundness.  The lemma statements found for TTT(2,2) are in `certs/auto22/`.
 
 `prove.sh N M BOUND` runs the whole pipeline.  `results/N_M/` holds the outputs (one line per
 holdout: `cert T0 inf=<used forever> fin=<transition:last use>` or `fail`) and `summary.txt`
@@ -176,11 +176,11 @@ holdout: `cert T0 inf=<used forever> fin=<transition:last use>` or `fail`) and `
 | (3, 2) | 17,542 | 14,448 | 16 | 1,154 | 1,924 | 59 |
 | (2, 3) | 32,697 | 24,068 | 33 | 2,331 | 6,265 | 14,101 |
 
-**What is still open.**  For TTT(3, 2) the 1,924 open holdouts are (by tape growth) 900
+**What is still open.**  For TTT(3,2) the 1,924 open holdouts are (by tape growth) 900
 √t-bouncers, 382 cubic bouncers, 641 counters and 1 linear.  Some are chaotic
 (e.g. `0TB1PB_1PA0PC_1TB1PC` above, and machines whose tape looks random), which these methods
 cannot handle.  The rest need better lemma guessing (regions spanning several repeats, several
-counters, mixed-radix digits).  For TTT(2, 3) the 6,265 open holdouts are 3,354
+counters, mixed-radix digits).  For TTT(2,3) the 6,265 open holdouts are 3,354
 √t-bouncers, 907 cubic bouncers, 1,996 counters and 8 linear (probably translated cyclers with
 very long periods).  The open lists are `results/N_M/open.txt`, with growth classes in
 `open_growth.txt`.
@@ -192,7 +192,7 @@ very long periods).  The open lists are `results/N_M/open.txt`, with growth clas
 * A Lean checker for the inductive certificates, in the style of `lean/Bbbb/Symbolic.lean`.
 * A different argument for the chaotic holdouts: they would need a proof that a transition
   recurs, which none of these certificate forms can give.
-* TTT(4, 2) and TTT(2, 4): a full tree search at 20,000 steps (about 2·10⁶ nodes in 2 minutes)
+* TTT(4,2) and TTT(2,4): a full tree search at 20,000 steps (about 2·10⁶ nodes in 2 minutes)
   finds decided values only up to the step limit.  To beat the TT champions it needs much longer
   limits, plus filtering of holdouts (keeping only those with a transition that stops being
   used).
