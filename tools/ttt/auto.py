@@ -274,11 +274,26 @@ def describe(c):
     return '\n'.join(lines) + '\n'
 
 
+class Timeout(Exception):
+    pass
+
+
+def _alarm(signum, frame):
+    raise Timeout()
+
+
 def work(nm):
+    import signal
+    signal.signal(signal.SIGALRM, _alarm)
+    signal.alarm(int(os.environ.get('AUTO_TIMEOUT', 60)))
     try:
         c = certificate(nm)
+    except Timeout:
+        return nm, 'fail timeout'
     except Exception as e:      # a bug in the guessing must not stop the run
         return nm, f'fail error {e!r}'
+    finally:
+        signal.alarm(0)
     if c is None:
         return nm, 'fail'
     try:
@@ -301,7 +316,7 @@ def main():
     out = open(sys.argv[2], 'w') if len(sys.argv) > 2 else sys.stdout
     with multiprocessing.Pool() as pool:
         n = ok = 0
-        for nm, res in pool.imap(work, names, chunksize=2):
+        for nm, res in pool.imap_unordered(work, names, chunksize=1):
             n += 1; ok += res.startswith('cert')
             out.write(f'{nm} {res}\n'); out.flush()
     print(f'{ok}/{n} holdouts with an inductive certificate', file=sys.stderr)

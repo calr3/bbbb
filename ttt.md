@@ -30,33 +30,34 @@ halting machine toots finitely often).  In every case below the TTT champion doe
 
 | Domain | TTT value | Champion (toot) | TT for comparison | Status |
 |---|---|---|---|---|
-| TTT(1, 2) | **= 3** (conjectured) | `1TA---` (A1) | 3 | all machines decided except the bouncer `1TA1PA`, which uses both transitions forever |
-| TTT(1, 3) | **= 5** (conjectured) | `1TA2PA---` (A2) | 5 | 6 holdouts, none with a transition that stops being used |
-| TTT(1, 4) | **= 9** (conjectured) | `1TA2PA3PA---` (A3) | 9 | 20 holdouts, same |
-| TTT(1, 5) | **≥ 13** | `1TA2PA3PA4PA---` (A4) | 13 | 55 holdouts at 10⁵ steps, same |
-| TTT(1, 6) | **≥ 19** | `1TA2PA3PA4PA5PA---` (A5) | 19 | 136 holdouts at 10⁵ steps, same |
-| TTT(2, 2) | **= 13** (conjectured) | `0TB0PB_1TB1PA` (A1), or the TT champion `1TB---_1PA0PB` (A1) | 13 | 102 holdouts.  Every transition they use stops by step 5 or is still used at step 2·10⁸ |
-| TTT(3, 2) | **≥ 90,899** (proven lower bound, conjectured value) | `1TB0PA_0PC1PC_1PA0PB` (C1) | 82 | 17,542 holdouts at 10⁷ steps (see below) |
-| TTT(2, 3) | **≥ 3,015,143** (proven lower bound, conjectured value) | `1TB2PB0PB_2TB2PA0PA` (A1) | 223 | 32,697 holdouts at 10⁷ steps (see below) |
+| TTT(1, 2) | **= 3** | `1TA---` (A1) | 3 | proven: the one holdout is certified |
+| TTT(1, 3) | **= 5** | `1TA2PA---` (A2) | 5 | proven: all 6 holdouts certified |
+| TTT(1, 4) | **= 9** | `1TA2PA3PA---` (A3) | 9 | proven: all 20 holdouts certified |
+| TTT(1, 5) | **≥ 13** (= 13 conjectured) | `1TA2PA3PA4PA---` (A4) | 13 | 53 of 55 holdouts certified (2 mixed-radix counters open) |
+| TTT(1, 6) | **≥ 19** (= 19 conjectured) | `1TA2PA3PA4PA5PA---` (A5) | 19 | 126 of 136 holdouts certified |
+| TTT(2, 2) | **= 13** | `0TB0PB_1TB1PA` (A1), or the TT champion `1TB---_1PA0PB` (A1) | 13 | proven: all 102 holdouts certified (85 bouncers, 17 counters / exponential and cubic bouncers) |
+| TTT(3, 2) | **≥ 90,899** (= 90,899 conjectured) | `1TB0PA_0PC1PC_1PA0PB` (C1) | 82 | 15,618 of 17,542 holdouts certified, none above 59; 1,924 open |
+| TTT(2, 3) | **≥ 3,015,143** (= 3,015,143 conjectured) | `1TB2PB0PB_2TB2PA0PA` (A1) | 223 | 26,432 of 32,697 holdouts certified, none above 14,101; 6,265 open |
 | TTT(4, 2) | **≥ 48,186** | TT champion `1TB1PA_1PC0PA_1TA0PD_---1TA` (D0, the halt) | ≥ 48,186 | from TT only; a 20,000-step tree search found nothing it could decide beyond its step limit |
 | TTT(2, 4) | **> 3.467·10¹⁵** | TT champion `1TA2PB3TB---_3TA1PB1TA1PA` (A3, the halt) | > 3.467·10¹⁵ | from TT only |
+
+"Proven" means: the tree search (`ttt.c`) decides every machine except the holdouts, and every
+holdout has a certificate checked by `bouncer_ttt.py` or `induct.py` showing that each of its
+transitions is either used forever or used for the last time below the champion's value.  These
+checkers are Python programs, not kernel-checked proofs (see *Upper bounds* below).
 
 **Proven lower bounds.**  Each champion's value was found by the search, and checked by an
 independent simulator (`tools/ttt/sim.py`).  "Proven" means a translated-cycler certificate:
 from some step on, the run repeats a fixed period of transitions, shifted along the tape, and
 the toot transition is not in that period.
 
-**Upper bounds.**  These are heuristic (a "conjectured" value).  They need every undecided
-machine (holdout) to toot infinitely often, or to toot for the last time below the champion's
-value.  Simulation suggests this, but it is not proven: there are no bouncer or counter proofs
-yet.
+**Upper bounds.**  See the section *Upper bounds: certificates for the holdouts* below.
 
 ### The champions
 
 * **TTT(2, 2) = 13**, `0TB0PB_1TB1PA` toot A1.  It toots twice, at steps 7 and 13.
   From step 16 the machine is a cycler of period 4 using only A0 and B1.  The TT champion
-  `1TB---_1PA0PB`, tooting on its halting transition, also scores 13.  So TTT(2) = TT(2) if
-  the holdouts behave as simulated.
+  `1TB---_1PA0PB`, tooting on its halting transition, also scores 13, so TTT(2) = TT(2).
 * **TTT(3, 2) ≥ 90,899**, `1TB0PA_0PC1PC_1PA0PB` toot C1.  It toots 16,081 times; the last
   toot is at step 90,899.  From step 90,913 it is a translated cycler of period 29 that uses
   A0, A1, B0, B1, C0 but never C1.  For comparison, TT(3) ≥ 82 and BBB(3) = 55.
@@ -104,7 +105,8 @@ machine is simulated, and when an undefined transition is reached three things h
    used forever.  Every other transition is never used again, so its last use is final.  This
    is exact.
 4. Otherwise the machine is a holdout.  Holdouts from a 10⁵-step run are run again (with the
-   same tree search) at 10⁷ steps (`ttt N M 10000000 @holdouts.txt`).
+   same tree search) at 10⁷ steps (`ttt N M 10000000 @holdouts.txt`), and then with a wider
+   translated-cycler window (`ttt_big`, built by `prove.sh`).
 
 `sim.py` is an independent Python simulator.  `longrun.c` runs a single machine for billions of
 steps.  `heur.py` lists holdout transitions whose last use is the same at L/10 and L.
@@ -119,11 +121,77 @@ transition T: its last use at L/10 and at L.  The files are `h22_deep`, `h12_dee
     tools/ttt/ttt 3 2 10000000 @h32.txt h32_deep.txt
     python3 tools/ttt/heur.py h32_deep.txt 20
 
+## Upper bounds: certificates for the holdouts
+
+A holdout needs, for each transition `t`, a proof that `t` is used infinitely often, or that it
+is never used after some step `T0` (then a toot on `t` scores at most the last use before `T0`,
+read from the simulation).  Two certificate checkers do this.
+
+**Bouncer certificates** (`bouncer_ttt.py`).  A turmite is an ordinary 2n-state TM whose states
+are (state, facing direction), so the BBBB(3) bouncer prover (`tools/bbbb3/bouncer.py`) applies.
+A certificate is a step `T0` and a configuration `C(n)` (tape sides made of cells and words
+repeated `a·n + b` times) with a symbolic round from `C(n)` to `C(n+1)` for every `n`.  From
+`T0` the run is the sequence of rounds, so the transitions of a round are used forever and all
+others never again.  Two additions were needed for turmites: a second normal form for sides
+(moving cells inward through repeats, `(x u)^k x = x (u x)^k`, alongside the original outward
+rule), and rounds of two or three alternating kinds (every 2nd or 3rd record).
+
+**Inductive certificates** (`induct.py`, found by `auto.py`).  These handle counters,
+exponential bouncers (a bouncer with a binary counter inside each round) and cubic bouncers.
+Configurations are relative to the head, `(state, ahead, behind)`, which suits turmites: `P`
+moves the written cell behind, `T` writes it ahead and swaps the two sides.  A *lemma* says
+that for all `j ≥ j0` a local configuration `P(j)` reaches `Q(j)` without reading its unknown
+contexts (the conclusion says which context follows each side).  It is proved by induction on
+`j`: a base case, and a symbolic run from `P(k+1)` to `Q(k+1)` that may apply the lemma at
+`k`.  The symbolic run uses concrete steps, unrolling of repeats that are nonempty for every
+`k`, shift rules over fixed words, applications of earlier lemmas (a repeat may be split when
+it matches), and identities on sides.  A *round* `C(j) -> C(j+1)` is proved the same way,
+without induction, and the configuration at `T0` is checked to be `C(0)`.  Each statement
+records the transitions it uses for every `j`, for every large `j`, and possibly.
+
+Example (`0TB0PA_1TA1PB`, a binary counter; `certs/c2x2.py` by hand, `auto.py` finds the
+same):
+
+    lemma Z(k):  A at the frame cell, 0^k behind  ->  B carrying past the k digits, now 1^k
+      step:  Z(k) on the lower k digits, B0, sweep A1 over 1^k, Z(k) again, B1
+    round C(n) -> C(n+1):  Z(n), B1, the new digit B0, sweep A1 over 1^(n+1)
+
+`auto.py` guesses the statements.  It infers `C(j)` from records (head on a fresh cell), and
+when the symbolic run is stuck in front of a repeat it cannot cross, it takes the region around
+the head as a premise.  It reads the conclusion off concrete runs of the premise for several
+`j`, until the head first reads outside the region on the far side, and tries to prove it
+(recursively discovering sub-lemmas, with backtracking).  Only the checker matters for
+soundness.  The lemma statements found for TTT(2, 2) are in `certs/auto22/`.
+
+`prove.sh N M BOUND` runs the whole pipeline.  `results/N_M/` holds the outputs (one line per
+holdout: `cert T0 inf=<used forever> fin=<transition:last use>` or `fail`) and `summary.txt`
+(from `combine.py`).
+
+| Domain | holdouts (10⁷ steps) | bouncer | translated cycler (wider window) | inductive | open | largest finite last use |
+|---|---|---|---|---|---|---|
+| (1, 2) | 1 | 1 | | | 0 | 0 |
+| (1, 3) | 6 | 5 | | 1 | 0 | 0 |
+| (1, 4) | 20 | 15 | | 5 | 0 | 0 |
+| (2, 2) | 102 | 85 | | 17 | 0 | 5 |
+| (3, 2) | 17,542 | 14,448 | 16 | 1,154 | 1,924 | 59 |
+| (2, 3) | 32,697 | 24,068 | 33 | 2,331 | 6,265 | 14,101 |
+
+**What is still open.**  For TTT(3, 2) the 1,924 open holdouts are (by tape growth) 900
+√t-bouncers, 382 cubic bouncers, 641 counters and 1 linear.  Some are chaotic
+(e.g. `0TB1PB_1PA0PC_1TB1PC` above, and machines whose tape looks random), which these methods
+cannot handle.  The rest need better lemma guessing (regions spanning several repeats, several
+counters, mixed-radix digits).  For TTT(2, 3) the 6,265 open holdouts are 3,354
+√t-bouncers, 907 cubic bouncers, 1,996 counters and 8 linear (probably translated cyclers with
+very long periods).  The open lists are `results/N_M/open.txt`, with growth classes in
+`open_growth.txt`.
+
 ## Possible next steps
 
-* Bouncer and counter proofs for the holdouts, which would show that the transitions they use
-  recur forever (this is what an upper bound needs).  The `bbbb3` bouncer certificates could be
-  adapted: a turmite is a 2n-state TM whose states are (state, direction).
+* Better lemma guessing in `auto.py` (the guessed region, conclusions that are not linear in
+  `j`, lemmas with two parameters).
+* A Lean checker for the inductive certificates, in the style of `lean/Bbbb/Symbolic.lean`.
+* A different argument for the chaotic holdouts: they would need a proof that a transition
+  recurs, which none of these certificate forms can give.
 * TTT(4, 2) and TTT(2, 4): a full tree search at 20,000 steps (about 2·10⁶ nodes in 2 minutes)
   finds decided values only up to the step limit.  To beat the TT champions it needs much longer
   limits, plus filtering of holdouts (keeping only those with a transition that stops being
