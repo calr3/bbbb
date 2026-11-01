@@ -14,7 +14,7 @@ Everything is checked by induct.py; the guessing only proposes statements.
 usage: auto.py HOLDOUTS [OUT]
 Output per machine: `cert T0 inf=... fin=T:last,...` (as bouncer_ttt.py) or `fail <reason>`.
 """
-import os, sys, gzip, multiprocessing, collections
+import os, sys, gzip, multiprocessing, collections, itertools
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import induct                               # noqa: E402
@@ -88,13 +88,53 @@ def sim_region(T, q, A, ea, B, eb, maxsteps=200000):
     return s, d, ah, eah, be, ebe
 
 
+def infer_side(strings):
+    """bouncer.infer_side without regular expressions (whose backtracking can hang on some
+    tapes): the shape of the last sample, matched greedily against each sample"""
+    shape = bouncer.rle_shape(strings[-1])
+    counts = []
+    for s in strings:
+        s = list(s); i = 0; cs = []
+        for it in shape:
+            if it[0] == 'cell':
+                if i >= len(s) or s[i] != it[1]:
+                    return None
+                i += 1
+            else:
+                w = list(it[1]); k = 0
+                while s[i:i + len(w)] == w:
+                    i += len(w); k += 1
+                cs.append(k)
+        if i != len(s):
+            return None
+        counts.append(cs)
+    reps = [it[1] for it in shape if it[0] == 'rep']
+    lin = []
+    for j in range(len(reps)):
+        c = [cs[j] for cs in counts]
+        a = c[1] - c[0]
+        if a < 0 or any(c[k + 1] - c[k] != a for k in range(len(c) - 1)):
+            return None
+        lin.append((a, c[0]))
+    side = []; j = 0
+    for it in shape:
+        if it[0] == 'cell':
+            side.append(('l', it[1]))
+        else:
+            a, b = lin[j]; j += 1
+            if a == 0:
+                side.extend(('l', x) for x in it[1] * b)
+            else:
+                side.append(('r', it[1], a, b))
+    return side
+
+
 def generalize(samples):
     """items in j for a list of concrete cell lists at j = j0, j0 + 1, ... (None if not
     linear); repeat counts a*j + b with j counted from j0 = 0"""
     if all(x == samples[0] for x in samples):
         return [('l', c) for c in samples[0]]
-    side = bouncer.infer_side(samples)
-    return side
+    return infer_side(samples)
 
 
 def guess_lemma(T, cfg, k0, name):
@@ -104,11 +144,14 @@ def guess_lemma(T, cfg, k0, name):
     for ia in range(1, min(len(A), MAXIA) + 1):
         for ib in range(0, min(len(B), MAXIB) + 1):
             pA, pB = A[:ia], B[:ib]
-            pea = 'B' if (ia == len(A) and ea == 'B') else 'X'
-            peb = 'B' if (ib == len(B) and eb == 'B') else 'X'
+            ends_a = ['B'] if (ia == len(A) and ea == 'B') else ['X']
+            ends_b = ['B'] if (ib == len(B) and eb == 'B') else ['X']
             if not any(it[0] == 'r' and it[2] > 0 for it in pA + pB):
                 continue
-            for start in (k0, k0 + 1, k0 + 2):
+            got = set()
+            for pea, peb, start in itertools.product(ends_a, ends_b, (k0, k0 + 1, k0 + 2)):
+                if (pea, peb) in got:
+                    continue
                 posts = []
                 for j in range(start, start + 5):
                     r = sim_region(T, q, cells_of(pA, j), pea, cells_of(pB, j), peb)
@@ -139,7 +182,7 @@ def guess_lemma(T, cfg, k0, name):
                 L = Stmt(name, start, (q, (pA, pea), (pB, peb)),
                          (p0[0], (shift(ga), p0[3]), (shift(gb), p0[5])))
                 cands.append(L)
-                break
+                got.add((pea, peb))
     return cands
 
 
@@ -268,7 +311,7 @@ def certificate_mode(nm):
             cfgs = [induct.concrete(T, t)[0] for t in times]
             if len({c[0] for c in cfgs}) != 1 or any(induct.trim(c[1]) for c in cfgs):
                 continue
-            far = bouncer.infer_side([c[2] for c in cfgs])
+            far = infer_side([c[2] for c in cfgs])
             if far is None:
                 continue
             tried += 1
@@ -319,7 +362,7 @@ def certificate(nm):
     return None
 
 
-class Timeout(Exception):
+class Timeout(BaseException):
     pass
 
 
