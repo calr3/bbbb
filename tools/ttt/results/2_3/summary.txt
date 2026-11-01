@@ -1,6 +1,6 @@
-26432/32697 holdouts certified; largest last use of a transition used finitely often: 14101 (1TB2TB1TA_1PA0PB0TB toot B2)
+26784/32697 holdouts certified; largest last use of a transition used finitely often: 14101 (1TB2TB1TA_1PA0PB0TB toot B2)
 all certified holdouts are below the bound
-6265 open
+5913 open
   open 0PB2PA0PB_1TA1PB0PA
   open 0PB2PA0TA_1TA1PB0PA
   open 0PB2PA1TA_1TA1PB0PA

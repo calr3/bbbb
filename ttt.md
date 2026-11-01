@@ -37,7 +37,7 @@ halting machine toots finitely often).  In every case below the TTT champion doe
 | TTT(1,6) | **≥ 19** | [`1TA2PA3PA4PA5PA---`](https://calr3.github.io/bbbb/explore/1TA2PA3PA4PA5PA---;A5) (A5) | 19 | 126 of 136 holdouts certified. Probably = 19 |
 | TTT(2,2) | **= 13** | [`0TB0PB_1TB1PA`](https://calr3.github.io/bbbb/explore/0TB0PB_1TB1PA;A1) (A1), or the TT champion [`1TB---_1PA0PB`](https://calr3.github.io/bbbb/explore/1TB---_1PA0PB;A1) (A1) | 13 | proven: all 102 holdouts certified (85 bouncers, 17 counters / exponential and cubic bouncers) |
 | TTT(3,2) | **≥ 90,899** (= 90,899 conjectured) | [`1TB0PA_0PC1PC_1PA0PB`](https://calr3.github.io/bbbb/explore/1TB0PA_0PC1PC_1PA0PB;C1) (C1) | 82 | 15,764 of 17,542 holdouts certified, none above 59; 1,778 open |
-| TTT(2,3) | **≥ 3,015,143** | [`1TB2PB0PB_2TB2PA0PA`](https://calr3.github.io/bbbb/explore/1TB2PB0PB_2TB2PA0PA;A1) (A1) | 223 | 26,432 of 32,697 holdouts certified, none above 14,101; 6,265 open. Conjecture: =3,015,143. |
+| TTT(2,3) | **≥ 3,015,143** | [`1TB2PB0PB_2TB2PA0PA`](https://calr3.github.io/bbbb/explore/1TB2PB0PB_2TB2PA0PA;A1) (A1) | 223 | 26,784 of 32,697 holdouts certified, none above 14,101; 5,913 open. Conjecture: =3,015,143. |
 | TTT(4,2) | **≥ 48,186** | TT champion [`1TB1PA_1PC0PA_1TA0PD_---1TA`](https://calr3.github.io/bbbb/explore/1TB1PA_1PC0PA_1TA0PD_---1TA;D0) (D0, the halt) | ≥ 48,186 | from TT only; a 20,000-step tree search found nothing it could decide beyond its step limit |
 | TTT(2,4) | **> 3.467·10¹⁵** | TT champion [`1TA2PB3TB---_3TA1PB1TA1PA`](https://calr3.github.io/bbbb/explore/1TA2PB3TB---_3TA1PB1TA1PA;A3) (A3, the halt) | > 3.467·10¹⁵ | from TT only |
 
@@ -168,7 +168,15 @@ same):
 `auto.py` guesses the statements (second pass, `results/3_2/auto2.txt`: lemma patterns are
 also matched in normal form, so `(00)^(j+1) 0` matches `0^(2k+5)`; candidate lemmas that prove
 without sub-lemmas are tried first, then the larger-region-first search; round shapes are also
-inferred from late records and from a 10× longer run).  It infers `C(j)` from records (head on a fresh cell), and
+inferred from late records and from a 10× longer run; also `results/2_3/auto2.txt`).
+
+Cubic bouncers (a hole that moves one cell per pass, e.g.
+[`0TB0PB_0TC1PB_1TA1PC`](https://calr3.github.io/bbbb/explore/0TB0PB_0TC1PB_1TA1PC)) are the
+largest regular class still open.  The pass itself is a provable lemma, but a pass also moves the
+part of the tape between the head's turning point and the hole, so iterating it needs statements
+with two parameters (the hole's distance and the length of that part): one pass for all sizes of
+both blocks, then "x passes take (x, y) to (0, y + x)".  `induct.py` has one parameter per
+statement, so this is the next extension.  It infers `C(j)` from records (head on a fresh cell), and
 when the symbolic run is stuck in front of a repeat it cannot cross, it takes the region around
 the head as a premise.  It reads the conclusion off concrete runs of the premise for several
 `j`, until the head first reads outside the region on the far side, and tries to prove it
@@ -186,7 +194,7 @@ holdout: `cert T0 inf=<used forever> fin=<transition:last use>` or `fail`) and `
 | (1, 4) | 20 | 15 | | 5 | 0 | 0 |
 | (2, 2) | 102 | 85 | | 17 | 0 | 5 |
 | (3, 2) | 17,542 | 14,448 | 16 | 1,300 | 1,778 | 59 |
-| (2, 3) | 32,697 | 24,068 | 33 | 2,331 | 6,265 | 14,101 |
+| (2, 3) | 32,697 | 24,068 | 33 | 2,683 | 5,913 | 14,101 |
 
 **What is still open.**  For TTT(3,2) the 1,778 open holdouts are (by tape growth) 897
 √t-bouncers, 379 cubic bouncers, 501 counters and 1 linear.  In a sample of 200 open
@@ -195,8 +203,8 @@ of the form cells and linearly growing repeats, even late in the run): many of t
 chaotic, or carry irregular debris that the bouncer keeps rewriting.  Some are chaotic
 (e.g. [`0TB1PB_1PA0PC_1TB1PC`](https://calr3.github.io/bbbb/explore/0TB1PB_1PA0PC_1TB1PC) above, and machines whose tape looks random), which these methods
 cannot handle.  The rest need better lemma guessing (regions spanning several repeats, several
-counters, mixed-radix digits).  For TTT(2,3) the 6,265 open holdouts are 3,354
-√t-bouncers, 907 cubic bouncers, 1,996 counters and 8 linear (probably translated cyclers with
+counters, mixed-radix digits).  For TTT(2,3) the 5,913 open holdouts are 3,344
+√t-bouncers, 890 cubic bouncers, 1,671 counters and 8 linear (probably translated cyclers with
 very long periods).  The open lists are `results/N_M/open.txt`, with growth classes in
 `open_growth.txt`.
 
