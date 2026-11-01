@@ -103,7 +103,7 @@ Terminating Turmites (relative-movement TMs: `P` proceed, `T` turn around) with 
 transition; the value is the step of the last toot (quasihalting), as in BBB.  See
 [`ttt.md`](ttt.md) and `tools/ttt/`.  **TTT(2) = 13**, **TTT(1,3) = 5** and **TTT(1,4) = 9**
 are proven (every holdout of the tree search has a bouncer or inductive certificate, checked by
-Python programs).  TTT(3) ≥ 90,899 with `1TB0PA_0PC1PC_1PA0PB` (toot C1) and TTT(2,3) ≥
-3,015,143 with `1TB2PB0PB_2TB2PA0PA` (toot A1), both translated cyclers that stop using the
+Python programs).  TTT(3) ≥ 90,899 with [`1TB0PA_0PC1PC_1PA0PB`](https://calr3.github.io/bbbb/explore/1TB0PA_0PC1PC_1PA0PB;C1) (toot C1) and TTT(2,3) ≥
+3,015,143 with [`1TB2PB0PB_2TB2PA0PA`](https://calr3.github.io/bbbb/explore/1TB2PB0PB_2TB2PA0PA;A1) (toot A1), both translated cyclers that stop using the
 toot transition; for TTT(3), 15,764 of the 17,542 holdouts are certified (none beats the
 champion) and 1,778 are open, some of them chaotic.

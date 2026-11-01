@@ -12,8 +12,8 @@
 
 An n-state, m-symbol TT has transitions `(state, symbol) -> (write, P|T, next state)`.  It
 starts in state `A`, facing right, on a blank (all-0) tape.  An undefined transition (`---`)
-halts.  The halting step counts as a step: it is the `1PZ` of the TT notation, so `1TA---`
-here is `1TA1PZ` there.
+halts.  The halting step counts as a step: it is the `1PZ` of the TT notation, so [`1TA---`](https://calr3.github.io/bbbb/explore/1TA---)
+here is [`1TA1PZ`](https://calr3.github.io/bbbb/explore/1TA1PZ) there.
 
 A **tooting** TT also picks one **toot transition**, a pair `(state, symbol)` such as `C1`. 
 The machine toots every time it executes that transition.  If it
@@ -30,16 +30,16 @@ halting machine toots finitely often).  In every case below the TTT champion doe
 
 | Domain | TTT value | Champion (toot) | TT for comparison | Status |
 |---|---|---|---|---|
-| TTT(1,2) | **= 3** | `1TA---` (A1) | 3 | proven: the one holdout is certified |
-| TTT(1,3) | **= 5** | `1TA2PA---` (A2) | 5 | proven: all 6 holdouts certified |
-| TTT(1,4) | **= 9** | `1TA2PA3PA---` (A3) | 9 | proven: all 20 holdouts certified |
-| TTT(1,5) | **≥ 13** | `1TA2PA3PA4PA---` (A4) | 13 | 53 of 55 holdouts certified (2 mixed-radix counters open). Probably = 13 |
-| TTT(1,6) | **≥ 19** | `1TA2PA3PA4PA5PA---` (A5) | 19 | 126 of 136 holdouts certified. Probably = 19 |
-| TTT(2,2) | **= 13** | `0TB0PB_1TB1PA` (A1), or the TT champion `1TB---_1PA0PB` (A1) | 13 | proven: all 102 holdouts certified (85 bouncers, 17 counters / exponential and cubic bouncers) |
-| TTT(3,2) | **≥ 90,899** (= 90,899 conjectured) | `1TB0PA_0PC1PC_1PA0PB` (C1) | 82 | 15,764 of 17,542 holdouts certified, none above 59; 1,778 open |
-| TTT(2,3) | **≥ 3,015,143** | `1TB2PB0PB_2TB2PA0PA` (A1) | 223 | 26,432 of 32,697 holdouts certified, none above 14,101; 6,265 open. Conjecture: =3,015,143. |
-| TTT(4,2) | **≥ 48,186** | TT champion `1TB1PA_1PC0PA_1TA0PD_---1TA` (D0, the halt) | ≥ 48,186 | from TT only; a 20,000-step tree search found nothing it could decide beyond its step limit |
-| TTT(2,4) | **> 3.467·10¹⁵** | TT champion `1TA2PB3TB---_3TA1PB1TA1PA` (A3, the halt) | > 3.467·10¹⁵ | from TT only |
+| TTT(1,2) | **= 3** | [`1TA---`](https://calr3.github.io/bbbb/explore/1TA---;A1) (A1) | 3 | proven: the one holdout is certified |
+| TTT(1,3) | **= 5** | [`1TA2PA---`](https://calr3.github.io/bbbb/explore/1TA2PA---;A2) (A2) | 5 | proven: all 6 holdouts certified |
+| TTT(1,4) | **= 9** | [`1TA2PA3PA---`](https://calr3.github.io/bbbb/explore/1TA2PA3PA---;A3) (A3) | 9 | proven: all 20 holdouts certified |
+| TTT(1,5) | **≥ 13** | [`1TA2PA3PA4PA---`](https://calr3.github.io/bbbb/explore/1TA2PA3PA4PA---;A4) (A4) | 13 | 53 of 55 holdouts certified (2 mixed-radix counters open). Probably = 13 |
+| TTT(1,6) | **≥ 19** | [`1TA2PA3PA4PA5PA---`](https://calr3.github.io/bbbb/explore/1TA2PA3PA4PA5PA---;A5) (A5) | 19 | 126 of 136 holdouts certified. Probably = 19 |
+| TTT(2,2) | **= 13** | [`0TB0PB_1TB1PA`](https://calr3.github.io/bbbb/explore/0TB0PB_1TB1PA;A1) (A1), or the TT champion [`1TB---_1PA0PB`](https://calr3.github.io/bbbb/explore/1TB---_1PA0PB;A1) (A1) | 13 | proven: all 102 holdouts certified (85 bouncers, 17 counters / exponential and cubic bouncers) |
+| TTT(3,2) | **≥ 90,899** (= 90,899 conjectured) | [`1TB0PA_0PC1PC_1PA0PB`](https://calr3.github.io/bbbb/explore/1TB0PA_0PC1PC_1PA0PB;C1) (C1) | 82 | 15,764 of 17,542 holdouts certified, none above 59; 1,778 open |
+| TTT(2,3) | **≥ 3,015,143** | [`1TB2PB0PB_2TB2PA0PA`](https://calr3.github.io/bbbb/explore/1TB2PB0PB_2TB2PA0PA;A1) (A1) | 223 | 26,432 of 32,697 holdouts certified, none above 14,101; 6,265 open. Conjecture: =3,015,143. |
+| TTT(4,2) | **≥ 48,186** | TT champion [`1TB1PA_1PC0PA_1TA0PD_---1TA`](https://calr3.github.io/bbbb/explore/1TB1PA_1PC0PA_1TA0PD_---1TA;D0) (D0, the halt) | ≥ 48,186 | from TT only; a 20,000-step tree search found nothing it could decide beyond its step limit |
+| TTT(2,4) | **> 3.467·10¹⁵** | TT champion [`1TA2PB3TB---_3TA1PB1TA1PA`](https://calr3.github.io/bbbb/explore/1TA2PB3TB---_3TA1PB1TA1PA;A3) (A3, the halt) | > 3.467·10¹⁵ | from TT only |
 
 "Proven" means: the tree search (`ttt.c`) decides every machine except the holdouts, and every
 holdout has a certificate checked by `bouncer_ttt.py` or `induct.py` showing that each of its
@@ -55,13 +55,13 @@ the toot transition is not in that period.
 
 ### The champions
 
-* **TTT(2,2) = 13**, `0TB0PB_1TB1PA` toot A1.  It toots twice, at steps 7 and 13.
+* **TTT(2,2) = 13**, [`0TB0PB_1TB1PA`](https://calr3.github.io/bbbb/explore/0TB0PB_1TB1PA;A1) toot A1.  It toots twice, at steps 7 and 13.
   From step 16 the machine is a cycler of period 4 using only A0 and B1.  The TT champion
-  `1TB---_1PA0PB`, tooting on its halting transition, also scores 13, so TTT(2) = TT(2).
-* **TTT(3,2) ≥ 90,899**, `1TB0PA_0PC1PC_1PA0PB` toot C1.  It toots 16,081 times; the last
+  [`1TB---_1PA0PB`](https://calr3.github.io/bbbb/explore/1TB---_1PA0PB), tooting on its halting transition, also scores 13, so TTT(2) = TT(2).
+* **TTT(3,2) ≥ 90,899**, [`1TB0PA_0PC1PC_1PA0PB`](https://calr3.github.io/bbbb/explore/1TB0PA_0PC1PC_1PA0PB;C1) toot C1.  It toots 16,081 times; the last
   toot is at step 90,899.  From step 90,913 it is a translated cycler of period 29 that uses
   A0, A1, B0, B1, C0 but never C1.  For comparison, TT(3) ≥ 82 and BBB(3) = 55.
-* **TTT(2,3) ≥ 3,015,143**, `1TB2PB0PB_2TB2PA0PA` toot A1.  It toots 129,411 times; the last
+* **TTT(2,3) ≥ 3,015,143**, [`1TB2PB0PB_2TB2PA0PA`](https://calr3.github.io/bbbb/explore/1TB2PB0PB_2TB2PA0PA;A1) toot A1.  It toots 129,411 times; the last
   toot is at step 3,015,143.  From step 3,015,163 it is a translated cycler of period 9 using
   A0, A2, B0, B1, B2.  For comparison, TT(2, 3) ≥ 223.
 
@@ -79,8 +79,8 @@ chaotic, and both toot again much later:
 
 | Machine (toot) | Apparent last toot (10⁷ steps) | Actual next toot |
 |---|---|---|
-| `0TB1PB_1PA0PC_1TB1PC` (A0), and 4 closely related variants | 988,058 | 939,182,029 (the variants: by step 2.8·10⁹) |
-| `1TB1PC_1PA0PB_1PB1PA` (C1), and 1 variant | 129,903 | 2,416,049,000 |
+| [`0TB1PB_1PA0PC_1TB1PC`](https://calr3.github.io/bbbb/explore/0TB1PB_1PA0PC_1TB1PC;A0) (A0), and 4 closely related variants | 988,058 | 939,182,029 (the variants: by step 2.8·10⁹) |
+| [`1TB1PC_1PA0PB_1PB1PA`](https://calr3.github.io/bbbb/explore/1TB1PC_1PA0PB_1PB1PA;C1) (C1), and 1 variant | 129,903 | 2,416,049,000 |
 
 The first machine leaves a tape of 1s with two or three wandering 0-holes.  It toots (A0) only
 when two holes line up next to the head.  That happens more and more rarely as the tape grows
@@ -96,7 +96,9 @@ step 921,268, below the champion.
 `tools/ttt/viz/` is a browser tool (Turmite Explorer) that draws space-time diagrams of TTs and
 TTTs and reports the last toot, with the same decider as `ttt.c`.  URLs take TT notation,
 optionally with a toot transition: `.../explore/1TB0PA_0PC1PC_1PA0PB;C1`.  See its README for
-hosting on GitHub Pages.
+hosting on GitHub Pages.  Every machine named in these notes links to the explorer
+(`tools/ttt/linkify.py FILE.md` adds the links, using the toot transition when one is given
+next to the machine).
 
 ## Method (`tools/ttt/`)
 
@@ -156,7 +158,7 @@ it matches), and identities on sides.  A *round* `C(j) -> C(j+1)` is proved the 
 without induction, and the configuration at `T0` is checked to be `C(0)`.  Each statement
 records the transitions it uses for every `j`, for every large `j`, and possibly.
 
-Example (`0TB0PA_1TA1PB`, a binary counter; `certs/c2x2.py` by hand, `auto.py` finds the
+Example ([`0TB0PA_1TA1PB`](https://calr3.github.io/bbbb/explore/0TB0PA_1TA1PB), a binary counter; `certs/c2x2.py` by hand, `auto.py` finds the
 same):
 
     lemma Z(k):  A at the frame cell, 0^k behind  ->  B carrying past the k digits, now 1^k
@@ -191,7 +193,7 @@ holdout: `cert T0 inf=<used forever> fin=<transition:last use>` or `fail`) and `
 holdouts, about two thirds have no regular round shape at all (records whose tapes are not
 of the form cells and linearly growing repeats, even late in the run): many of these are
 chaotic, or carry irregular debris that the bouncer keeps rewriting.  Some are chaotic
-(e.g. `0TB1PB_1PA0PC_1TB1PC` above, and machines whose tape looks random), which these methods
+(e.g. [`0TB1PB_1PA0PC_1TB1PC`](https://calr3.github.io/bbbb/explore/0TB1PB_1PA0PC_1TB1PC) above, and machines whose tape looks random), which these methods
 cannot handle.  The rest need better lemma guessing (regions spanning several repeats, several
 counters, mixed-radix digits).  For TTT(2,3) the 6,265 open holdouts are 3,354
 √t-bouncers, 907 cubic bouncers, 1,996 counters and 8 linear (probably translated cyclers with
