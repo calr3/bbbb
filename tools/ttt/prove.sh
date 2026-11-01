@@ -5,11 +5,11 @@
 #   2. bouncer certificates (bouncer_ttt.py);
 #   3. inductive certificates with discovered lemmas (auto.py), then with larger regions;
 #   4. combine.py: how many holdouts are certified, and the largest finite last use among them.
-# Results go to results/N_M/.
+# Results go to results/N_M/ (or to $OUT).
 set -e
 cd "$(dirname "$0")"
 N=$1; M=$2; BOUND=$3
-D=results/${N}_${M}; mkdir -p $D
+D=${OUT:-results/${N}_${M}}; mkdir -p $D
 gcc -O2 -o ttt ttt.c
 sed -e 's/#define W 256 /#define W 4096 /' -e 's/#define R 1024 /#define R 8192 /' ttt.c > /tmp/ttt_big.c
 gcc -O2 -o ttt_big /tmp/ttt_big.c
