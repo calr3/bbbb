@@ -91,6 +91,13 @@ TTT(3,2) and TTT(2,3) are given as lower bounds.  All other apparent quasihalter
 3-state holdouts stop tooting by step 452.  Among the 2-state, 3-symbol holdouts they stop by
 step 921,268, below the champion.
 
+## Visualizer
+
+`tools/ttt/viz/` is a browser tool (Turmite Explorer) that draws space-time diagrams of TTs and
+TTTs and reports the last toot, with the same decider as `ttt.c`.  URLs take TT notation,
+optionally with a toot transition: `.../explore/1TB0PA_0PC1PC_1PA0PB;C1`.  See its README for
+hosting on GitHub Pages.
+
 ## Method (`tools/ttt/`)
 
 `ttt.c` enumerates machines in tree normal form.  Undefined transitions are filled in when the

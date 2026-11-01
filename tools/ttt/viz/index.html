@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turmite Explorer</title>
+<meta name="description" content="Space-time diagrams and quasihalting (last toot) analysis for Terminating Turmites (TT) and Tooting Terminating Turmites (TTT).">
+<style>
+:root {
+  --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1f; --muted: #6b6b70; --border: #dcdcd8;
+  --accent: #2f6fdb; --accent-text: #ffffff; --toot: #d9480f; --period: #2b8a3e; --warn: #b35c00;
+  --sym0: #f3f3f0; --grid: #e6e6e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151517; --panel: #1f1f22; --text: #ececee; --muted: #9a9aa2; --border: #34343a;
+    --accent: #6b9bff; --accent-text: #0b0b0d; --toot: #ff8a4c; --period: #5cc77a; --warn: #f0a24a;
+    --sym0: #1a1a1d; --grid: #2a2a2f;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151517; --panel: #1f1f22; --text: #ececee; --muted: #9a9aa2; --border: #34343a;
+  --accent: #6b9bff; --accent-text: #0b0b0d; --toot: #ff8a4c; --period: #5cc77a; --warn: #f0a24a;
+  --sym0: #1a1a1d; --grid: #2a2a2f;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 1200px; margin: 0 auto; padding: 16px; }
+h1 { font-size: 20px; margin: 4px 0 2px; }
+.sub { color: var(--muted); margin: 0 0 14px; }
+.sub a { color: var(--accent); }
+code, .mono, input.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+  margin-bottom: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+input, select, button { font: inherit; color: var(--text); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 7px; padding: 6px 9px; }
+input.mono { flex: 1 1 320px; min-width: 0; }
+button { cursor: pointer; }
+button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+label.ctl { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+label.ctl input { width: 110px; }
+.examples { margin-top: 10px; color: var(--muted); }
+.examples a { color: var(--accent); text-decoration: none; margin-right: 12px; white-space: nowrap; }
+.examples a:hover { text-decoration: underline; }
+.err { color: var(--toot); margin-top: 8px; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+.big { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 3px 14px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.status-final { color: var(--period); font-weight: 600; }
+.status-inf { color: var(--toot); font-weight: 600; }
+.status-open { color: var(--warn); font-weight: 600; }
+table.tt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+table.tt th, table.tt td { border: 1px solid var(--border); padding: 5px 7px; text-align: left;
+  vertical-align: top; }
+table.tt th { color: var(--muted); font-weight: 500; }
+table.tt td .tr { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 15px; }
+table.tt td .meta { color: var(--muted); font-size: 12px; }
+table.tt td.toot { outline: 2px solid var(--toot); outline-offset: -2px; }
+.tag { display: inline-block; font-size: 11px; padding: 0 5px; border-radius: 4px; margin-left: 4px;
+  border: 1px solid currentColor; }
+.tag.toot { color: var(--toot); }
+.tag.inf { color: var(--period); }
+.canvas-wrap { overflow: auto; max-height: 75vh; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--sym0); }
+canvas { display: block; image-rendering: pixelated; }
+#hover { min-height: 2.9em; margin-top: 8px; white-space: pre; overflow-x: auto; font-size: 13px; }
+.legend { color: var(--muted); font-size: 12px; margin-top: 6px; }
+.legend span.sw { display: inline-block; width: 11px; height: 11px; border-radius: 2px;
+  vertical-align: -1px; margin: 0 3px 0 10px; border: 1px solid var(--border); }
+.muted { color: var(--muted); }
+details summary { cursor: pointer; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Turmite Explorer</h1>
+  <p class="sub">Terminating Turmites (<code>P</code> proceed, <code>T</code> turn around) and
+    Tooting Terminating Turmites: <code>machine;toot</code>, e.g. <code>1TA2PA3PA4PA---;A4</code>.
+    The value of a TTT is the step of its last toot.
+    <a href="https://github.com/calr3/bbbb/blob/ttt/ttt.md">Definitions and results</a>.</p>
+
+  <div class="panel">
+    <form id="form" class="row" autocomplete="off">
+      <input id="machine" class="mono" spellcheck="false" aria-label="Machine"
+             placeholder="1TB---_1PA0PB   or   0TB0PB_1TB1PA;A1">
+      <button class="primary" type="submit">Explore</button>
+      <label class="ctl" title="Steps for the decider (cycler / translated cycler detection)">Analyse
+        <input id="limit" type="number" min="1000" step="1000000" value="10000000"> steps</label>
+    </form>
+    <div class="examples">Examples:
+      <a href="#1TB---_1PA0PB">TT(2) champion</a>
+      <a href="#0TB0PB_1TB1PA;A1">TTT(2) = 13</a>
+      <a href="#1TB0PA_0PC1PC_1PA0PB;C1">TTT(3) ≥ 90,899</a>
+      <a href="#1TB2PB0PB_2TB2PA0PA;A1">TTT(2,3) ≥ 3,015,143</a>
+      <a href="#1TA2PA3PA4PA---;A4">TTT(1,5) ≥ 13</a>
+      <a href="#1TB1PA_1PC0PA_1TA0PD_---1TA">TT(4) champion</a>
+      <a href="#0TB0PA_1TA1PB">binary counter</a>
+      <a href="#0TB1PB_1PA0PC_1TB1PC;A0">chaotic</a>
+    </div>
+    <div id="error" class="err" hidden></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div id="verdict-title" class="muted">Last toot</div>
+      <div id="verdict" class="big">–</div>
+      <div id="verdict-note" class="muted"></div>
+      <dl class="kv" id="stats" style="margin-top:10px"></dl>
+    </div>
+    <div class="panel">
+      <div class="muted" style="margin-bottom:6px">Transitions (uses, last use)</div>
+      <div id="table"></div>
+      <details style="margin-top:8px"><summary>Notation</summary>
+        <p class="muted" style="margin:6px 0 0">Each state is a group of <i>m</i> transitions, one per
+        symbol: write symbol, move (<code>P</code> = one cell the same way as the last move,
+        <code>T</code> = turn around and move one cell), next state. <code>---</code> or a target
+        beyond the last state (e.g. <code>Z</code>) halts; the halting step counts as a step. The head
+        starts in state A, facing right, on a blank tape. The toot transition is a (state, symbol)
+        pair such as <code>A4</code>; a toot on the halting transition scores the halting step.</p>
+      </details>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row" style="margin-bottom:10px">
+      <label class="ctl">From step <input id="start" type="number" min="0" value="0"></label>
+      <label class="ctl">Rows <input id="rows" type="number" min="1" max="20000" value="400"></label>
+      <label class="ctl">Steps per row <input id="stride" type="number" min="1" value="1"></label>
+      <label class="ctl">Cell px <input id="cell" type="number" min="1" max="24" value="0"
+        title="0 = fit to width"></label>
+      <label class="ctl">Columns <select id="cols">
+        <option value="tape">visited tape</option><option value="head">head range in view</option>
+      </select></label>
+      <button type="button" id="jump-toot">Go to last toot</button>
+      <button type="button" id="draw">Draw</button>
+    </div>
+    <div class="canvas-wrap" id="wrap"><canvas id="cv" width="10" height="10"></canvas></div>
+    <div id="hover" class="mono muted">Hover over the diagram to see a configuration.</div>
+    <div class="legend" id="legend"></div>
+  </div>
+</main>
+
+<!-- Shared core: parsing, simulation and the decider (also run in a Web Worker). -->
+<script id="core" type="text/plain">
+"use strict";
+function parseMachine(input) {
+  let s = String(input || '').trim();
+  try { s = decodeURIComponent(s); } catch (e) { /* keep as is */ }
+  s = s.replace(/\s+/g, '');
+  if (!s) throw new Error('Enter a machine.');
+  let tootStr = null;
+  const semi = s.indexOf(';');
+  if (semi >= 0) { tootStr = s.slice(semi + 1); s = s.slice(0, semi); }
+  const rows = s.split('_');
+  const n = rows.length;
+  if (rows[0].length % 3 !== 0 || rows[0].length === 0)
+    throw new Error('Each state needs 3 characters per symbol (e.g. 1PB or ---).');
+  const m = rows[0].length / 3;
+  if (n > 26) throw new Error('At most 26 states.');
+  if (m > 10) throw new Error('At most 10 symbols.');
+  const T = [];
+  rows.forEach((row, q) => {
+    if (row.length !== 3 * m) throw new Error(`State ${String.fromCharCode(65 + q)} has ${row.length / 3} transitions, expected ${m}.`);
+    for (let k = 0; k < m; k++) {
+      const c = row.substr(3 * k, 3);
+      const name = String.fromCharCode(65 + q) + k;
+      if (c === '---') { T.push({ halt: true, undef: true, text: c, name }); continue; }
+      const mt = /^([0-9])([PT])([A-Z])$/i.exec(c);
+      if (!mt) throw new Error(`Bad transition "${c}" at ${name} (expected e.g. 1PB, 0TA or ---).`);
+      const w = +mt[1];
+      if (w >= m) throw new Error(`Transition ${name} writes symbol ${w}, but there are only ${m} symbols.`);
+      const nx = mt[3].toUpperCase().charCodeAt(0) - 65;
+      const turn = mt[2].toUpperCase() === 'T';
+      T.push({ w, turn, next: nx, halt: nx >= n, text: c.toUpperCase(), name });
+    }
+  });
+  let toot = -1;
+  if (tootStr !== null && tootStr !== '') {
+    const mt = /^([A-Z])([0-9])$/i.exec(tootStr);
+    if (!mt) throw new Error(`Bad toot transition "${tootStr}" (expected e.g. A1).`);
+    const q = mt[1].toUpperCase().charCodeAt(0) - 65, k = +mt[2];
+    if (q >= n || k >= m) throw new Error(`Toot transition ${tootStr} is not in a ${n}-state ${m}-symbol machine.`);
+    toot = q * m + k;
+  }
+  const tt = rows.map(r => r.toUpperCase()).join('_');
+  return { n, m, T, toot, tt, canon: tt + (toot >= 0 ? ';' + T[toot].name : '') };
+}
+
+// Growable tape addressed by integer positions (the head starts at 0).
+class Tape {
+  constructor() { this.off = 1024; this.a = new Uint8Array(2048); }
+  get(p) { const i = p + this.off; return (i >= 0 && i < this.a.length) ? this.a[i] : 0; }
+  set(p, v) {
+    let i = p + this.off;
+    if (i < 0 || i >= this.a.length) { this.grow(p); i = p + this.off; }
+    this.a[i] = v;
+  }
+  grow(p) {
+    let size = this.a.length;
+    while (p + this.off < 0 || p + this.off >= size) size *= 2;
+    const b = new Uint8Array(size), shift = Math.floor((size - this.a.length) / 2);
+    b.set(this.a, shift); this.a = b; this.off += shift;
+  }
+}
+
+// Plain simulator: one step at a time.
+class Sim {
+  constructor(M) { this.M = M; this.tape = new Tape(); this.pos = 0; this.dir = 1; this.q = 0;
+    this.t = 0; this.halted = false; this.lo = 0; this.hi = 0; this.lastId = -1; }
+  step() {
+    if (this.halted) return false;
+    const M = this.M, s = this.tape.get(this.pos), id = this.q * M.m + s, tr = M.T[id];
+    this.t++; this.lastId = id;
+    if (tr.halt) { this.halted = true; return false; }
+    this.tape.set(this.pos, tr.w);
+    if (tr.turn) this.dir = -this.dir;
+    this.pos += this.dir; this.q = tr.next;
+    if (this.pos < this.lo) this.lo = this.pos;
+    if (this.pos > this.hi) this.hi = this.pos;
+    return true;
+  }
+}
+
+// Decider: halting, cyclers (Brent) and translated cyclers (records with equal tape over the
+// excursion of a period), as in tools/ttt/ttt.c.  Returns per-transition uses and last uses,
+// and which transitions recur forever.
+function decide(M, limit, progress) {
+  const W = 256, R = 1024, N = M.n * M.m;
+  const tape = new Tape();
+  const lastUse = new Float64Array(N), uses = new Float64Array(N);
+  let pos = 0, dir = 1, q = 0, lo = 0, hi = 0, extR = 0, extL = 0;
+  const mk = () => ({ step: new Float64Array(R), pos: new Float64Array(R), ext: new Float64Array(R),
+    q: new Int32Array(R), dir: new Int8Array(R), snap: new Uint8Array(R * W), n: 0 });
+  const RR = mk(), LL = mk();
+  let bq = -1, bdir = 0, bpos = 0, blo = 0, bhi = 0, bstep = 0, bbuf = null, nextPow = 1;
+  let toots = 0, lastToot = 0;
+  const tootId = M.toot;
+  let result = null;
+  function record(rec, side, step) {
+    // side +1: right record (snapshot leftwards), -1: left record (snapshot rightwards)
+    const r = rec.n % R;
+    rec.step[r] = step; rec.pos[r] = pos; rec.ext[r] = side > 0 ? extR : extL; rec.q[r] = q; rec.dir[r] = dir;
+    for (let k = 0; k < W; k++) rec.snap[r * W + k] = tape.get(pos - side * k);
+    let cum = pos;
+    for (let j = rec.n - 1; j >= 0 && j > rec.n - R; j--) {
+      const a = j % R, b = (j + 1) % R;
+      if (side > 0) { cum = Math.min(cum, rec.ext[b], rec.pos[a]); }
+      else { cum = Math.max(cum, rec.ext[b], rec.pos[a]); }
+      const d = side > 0 ? rec.pos[a] - cum : cum - rec.pos[a];
+      if (d >= W) continue;
+      if (rec.q[a] !== q || rec.dir[a] !== dir) continue;
+      let eq = true;
+      for (let k = 0; k <= d; k++) if (rec.snap[a * W + k] !== rec.snap[r * W + k]) { eq = false; break; }
+      if (eq) { rec.n++; return rec.step[a]; }
+    }
+    rec.n++;
+    return -1;
+  }
+  for (let step = 1; step <= limit; step++) {
+    const s = tape.get(pos), id = q * M.m + s, tr = M.T[id];
+    lastUse[id] = step; uses[id]++;
+    if (id === tootId) { toots++; lastToot = step; }
+    if (tr.halt) { result = { kind: 'halt', step }; break; }
+    tape.set(pos, tr.w);
+    if (tr.turn) dir = -dir;
+    pos += dir; q = tr.next;
+    if (pos < extR) extR = pos;
+    if (pos > extL) extL = pos;
+    if (pos > hi) {
+      hi = pos;
+      const t1 = record(RR, 1, step); extR = pos;
+      if (t1 >= 0) { result = { kind: 'translated', t1, t2: step }; break; }
+    }
+    if (pos < lo) {
+      lo = pos;
+      const t1 = record(LL, -1, step); extL = pos;
+      if (t1 >= 0) { result = { kind: 'translated', t1, t2: step }; break; }
+    }
+    if (q === bq && dir === bdir && pos === bpos && lo === blo && hi === bhi) {
+      let eq = true;
+      for (let p = lo; p <= hi; p++) if (tape.get(p) !== bbuf[p - lo]) { eq = false; break; }
+      if (eq) { result = { kind: 'cycler', t1: bstep, t2: step }; break; }
+    }
+    if (step === nextPow) {
+      nextPow *= 2; bq = q; bdir = dir; bpos = pos; blo = lo; bhi = hi; bstep = step;
+      bbuf = new Uint8Array(hi - lo + 1);
+      for (let p = lo; p <= hi; p++) bbuf[p - lo] = tape.get(p);
+    }
+    if (progress && step % 5000000 === 0) progress(step);
+  }
+  const inPeriod = new Array(N).fill(false);
+  if (result && result.kind !== 'halt') {
+    // the run from t2 repeats the run from t1 (shifted): simulate one more period to list it
+    const p = result.t2 - result.t1;
+    for (let i = 0; i < p; i++) {
+      const s = tape.get(pos), id = q * M.m + s, tr = M.T[id];
+      inPeriod[id] = true;
+      tape.set(pos, tr.w);
+      if (tr.turn) dir = -dir;
+      pos += dir; q = tr.next;
+    }
+  }
+  return { result: result || { kind: 'open', steps: limit }, lastUse: Array.from(lastUse),
+    uses: Array.from(uses), inPeriod, toots, lastToot, lo, hi };
+}
+</script>
+
+<script>
+"use strict";
+const CORE = document.getElementById('core').textContent;
+const { parseMachine, Sim, decide } = new Function(CORE + '\nreturn { parseMachine, Sim, decide };')();
+const $ = id => document.getElementById(id);
+const fmt = x => Number(x).toLocaleString('en-US');
+let M = null, analysis = null, worker = null;
+
+// ---------------------------------------------------------------- URL handling
+// Canonical form: <base>/explore/<machine>.  Also accepted: ?m=<machine> and #<machine>.
+function machineFromURL() {
+  const u = new URL(location.href);
+  if (u.searchParams.get('m')) return u.searchParams.get('m');
+  const i = u.pathname.indexOf('/explore/');
+  if (i >= 0 && u.pathname.length > i + 9) return decodeURIComponent(u.pathname.slice(i + 9));
+  if (u.hash.length > 1) return decodeURIComponent(u.hash.slice(1));
+  return '';
+}
+function baseURL() {
+  const u = new URL(location.href);
+  let p = u.pathname;
+  const i = p.indexOf('/explore/');
+  if (i >= 0) p = p.slice(0, i + 1);
+  else p = p.replace(/[^/]*$/, '');
+  return u.origin + p;
+}
+function setURL(canon, replace) {
+  if (location.protocol === 'file:') { history.replaceState(null, '', '#' + canon); return; }
+  const target = baseURL() + 'explore/' + canon;
+  if (target === location.href) return;
+  if (replace) history.replaceState(null, '', target); else history.pushState(null, '', target);
+}
+
+// ---------------------------------------------------------------- colours
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+const SYM = ['#2f6fdb', '#e8590c', '#2b8a3e', '#ae3ec9', '#f2c94c', '#0c8599', '#c2255c', '#5c7cfa', '#868e96'];
+const STATE = ['#ff3b3b', '#ffd43b', '#3bff8a', '#ff8cf0', '#3be0ff', '#ffa94d', '#c0a0ff', '#ffffff'];
+function hex(c) {
+  const ctx = hex.ctx || (hex.ctx = document.createElement('canvas').getContext('2d'));
+  ctx.fillStyle = c; const v = ctx.fillStyle;
+  if (v[0] === '#') return [parseInt(v.slice(1, 3), 16), parseInt(v.slice(3, 5), 16), parseInt(v.slice(5, 7), 16)];
+  const m = v.match(/\d+/g); return m ? m.slice(0, 3).map(Number) : [0, 0, 0];
+}
+
+// ---------------------------------------------------------------- analysis panel
+function renderTable() {
+  const N = M.n * M.m;
+  let h = '<table class="tt"><tr><th></th>';
+  for (let k = 0; k < M.m; k++) h += `<th>${k}</th>`;
+  h += '</tr>';
+  for (let q = 0; q < M.n; q++) {
+    h += `<tr><th>${String.fromCharCode(65 + q)}</th>`;
+    for (let k = 0; k < M.m; k++) {
+      const id = q * M.m + k, tr = M.T[id];
+      let meta = '';
+      if (analysis) {
+        const u = analysis.uses[id], lu = analysis.lastUse[id];
+        meta = u ? `${fmt(u)}× · last ${fmt(lu)}` : 'never used';
+        if (analysis.inPeriod[id]) meta = `forever · ${fmt(u)}× so far`;
+      }
+      const tags = (id === M.toot ? '<span class="tag toot">toot</span>' : '') +
+        (analysis && analysis.inPeriod[id] ? '<span class="tag inf">∞</span>' : '');
+      h += `<td class="${id === M.toot ? 'toot' : ''}"><span class="tr">${tr.text}</span>${tags}` +
+           `<div class="meta">${meta || '&nbsp;'}</div></td>`;
+    }
+    h += '</tr>';
+  }
+  $('table').innerHTML = h + '</table>';
+}
+
+function renderVerdict() {
+  const st = $('stats');
+  if (!analysis) {
+    $('verdict').textContent = '…'; $('verdict-note').textContent = 'analysing'; st.innerHTML = ''; return;
+  }
+  const r = analysis.result, a = analysis;
+  const kv = [];
+  kv.push(['Machine', `<code>${M.canon}</code>`]);
+  kv.push(['Size', `${M.n} states, ${M.m} symbols`]);
+  let behaviour;
+  if (r.kind === 'halt') behaviour = `halts at step ${fmt(r.step)}`;
+  else if (r.kind === 'cycler') behaviour = `cycler from step ${fmt(r.t1)}, period ${fmt(r.t2 - r.t1)}`;
+  else if (r.kind === 'translated') behaviour = `translated cycler from step ${fmt(r.t1)}, period ${fmt(r.t2 - r.t1)}`;
+  else behaviour = `undecided after ${fmt(r.steps)} steps (not halting, no cycle found)`;
+  kv.push(['Behaviour', behaviour]);
+  kv.push(['Tape visited', `${fmt(a.hi - a.lo + 1)} cells`]);
+  const title = $('verdict-title'), v = $('verdict'), note = $('verdict-note');
+  if (M.toot >= 0) {
+    const tn = M.T[M.toot].name;
+    title.textContent = `Last toot (toot transition ${tn}) — the TTT value`;
+    kv.push(['Toots', fmt(a.toots)]);
+    if (r.kind === 'halt' || (r.kind !== 'open' && !a.inPeriod[M.toot])) {
+      v.innerHTML = `<span class="status-final">${a.toots ? fmt(a.lastToot) : '0 (never toots)'}</span>`;
+      note.textContent = r.kind === 'halt'
+        ? 'Final: the machine halts.'
+        : `Final: from step ${fmt(r.t1)} the run repeats a period that does not use ${tn}.`;
+    } else if (r.kind !== 'open') {
+      v.innerHTML = '<span class="status-inf">∞ — toots forever</span>';
+      note.textContent = `${tn} is used in the repeating period, so there is no last toot (no TTT value).`;
+    } else {
+      v.innerHTML = `<span class="status-open">${a.toots ? fmt(a.lastToot) : 'none'} so far</span>`;
+      note.textContent = `Undecided: last toot within ${fmt(r.steps)} steps. Try more steps, or see the transition table.`;
+    }
+  } else {
+    title.textContent = 'Halting time (TT value)';
+    if (r.kind === 'halt') { v.innerHTML = `<span class="status-final">${fmt(r.step)} steps</span>`; note.textContent = 'Halts (the halting step counts).'; }
+    else if (r.kind === 'open') { v.innerHTML = '<span class="status-open">running</span>'; note.textContent = `No halt within ${fmt(r.steps)} steps. Add ;A0 etc. to pick a toot transition.`; }
+    else { v.innerHTML = '<span class="status-inf">never halts</span>'; note.textContent = 'Add ;A0 etc. to pick a toot transition: the table shows each transition\'s last use.'; }
+  }
+  st.innerHTML = kv.map(([k, x]) => `<dt>${k}</dt><dd>${x}</dd>`).join('');
+}
+
+function analyse() {
+  analysis = null; renderVerdict(); renderTable();
+  const limit = Math.max(1000, Math.floor(+$('limit').value || 1e7));
+  if (worker) worker.terminate();
+  const src = CORE + `
+    onmessage = e => {
+      const M = parseMachine(e.data.m);
+      const res = decide(M, e.data.limit, s => postMessage({ progress: s }));
+      postMessage({ done: res });
+    };`;
+  worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+  worker.onmessage = e => {
+    if (e.data.progress) { $('verdict-note').textContent = `analysing… ${fmt(e.data.progress)} steps`; return; }
+    analysis = e.data.done; renderVerdict(); renderTable(); drawLegend();
+  };
+  worker.postMessage({ m: M.canon, limit });
+}
+
+// ---------------------------------------------------------------- space-time diagram
+let view = null;
+function draw() {
+  if (!M) return;
+  const start = Math.max(0, Math.floor(+$('start').value || 0));
+  const rows = Math.min(20000, Math.max(1, Math.floor(+$('rows').value || 400)));
+  const stride = Math.max(1, Math.floor(+$('stride').value || 1));
+  const sim = new Sim(M);
+  while (sim.t < start && sim.step()) { /* run to the window */ }
+  // collect rows: configuration after t steps, t = start + i*stride
+  const data = [];
+  let hlo = sim.pos, hhi = sim.pos;
+  for (let i = 0; i < rows; i++) {
+    const t = sim.t;
+    const row = { t, pos: sim.pos, q: sim.q, dir: sim.dir, halted: sim.halted, toot: false, tape: null,
+      lo: 0, next: sim.halted ? -1 : sim.q * M.m + sim.tape.get(sim.pos) };
+    data.push(row);
+    hlo = Math.min(hlo, sim.pos); hhi = Math.max(hhi, sim.pos);
+    if (sim.halted) break;
+    // advance one row, noting toots
+    for (let k = 0; k < stride && !sim.halted; k++) {
+      const id = sim.q * M.m + sim.tape.get(sim.pos);
+      if (id === M.toot) row.toot = true;
+      sim.step();
+    }
+    row.snapshot = null;
+  }
+  // columns
+  let lo, hi;
+  if ($('cols').value === 'head') { lo = hlo - 3; hi = hhi + 3; }
+  else { lo = Math.min(sim.lo, hlo) - 1; hi = Math.max(sim.hi, hhi) + 1; }
+  if (hi - lo + 1 > 20000) { const c = Math.floor((hlo + hhi) / 2); lo = c - 10000; hi = c + 10000; }
+  // second pass for the tape contents (re-simulate, copying the visible columns)
+  const sim2 = new Sim(M);
+  while (sim2.t < start && sim2.step()) { /* */ }
+  const C = hi - lo + 1;
+  for (let i = 0; i < data.length; i++) {
+    const tp = new Uint8Array(C);
+    for (let c = 0; c < C; c++) tp[c] = sim2.tape.get(lo + c);
+    data[i].tape = tp;
+    for (let k = 0; k < stride && !sim2.halted; k++) sim2.step();
+  }
+  const wrapW = $('wrap').clientWidth - 2;
+  let cs = Math.floor(+$('cell').value || 0);
+  const gutter = 6;
+  if (!cs) cs = Math.max(1, Math.min(16, Math.floor((wrapW - gutter) / C)));
+  const cv = $('cv'), ctx = cv.getContext('2d');
+  cv.width = gutter + C * cs; cv.height = data.length * cs;
+  cv.style.width = cv.width + 'px'; cv.style.height = cv.height + 'px';
+  const img = ctx.createImageData(cv.width, cv.height), px = img.data;
+  const bg = hex(cssVar('--sym0')), tootC = hex(cssVar('--toot'));
+  const symC = SYM.map(hex), stC = STATE.map(hex), headBg = [20, 20, 24];
+  const put = (x, y, c) => { const o = (y * cv.width + x) * 4; px[o] = c[0]; px[o + 1] = c[1]; px[o + 2] = c[2]; px[o + 3] = 255; };
+  for (let i = 0; i < data.length; i++) {
+    const row = data[i];
+    for (let yy = 0; yy < cs; yy++) {
+      const y = i * cs + yy;
+      for (let x = 0; x < gutter; x++) put(x, y, row.toot ? tootC : bg);
+      for (let c = 0; c < C; c++) {
+        const s = row.tape[c], col = s === 0 ? bg : symC[(s - 1) % symC.length];
+        for (let xx = 0; xx < cs; xx++) put(gutter + c * cs + xx, y, col);
+      }
+    }
+    // head
+    const hc = row.pos - lo;
+    if (hc >= 0 && hc < C) {
+      const col = stC[row.q % stC.length];
+      if (cs >= 4) {
+        // a dark cell with a triangle pointing in the facing direction
+        for (let yy = 0; yy < cs; yy++) for (let xx = 0; xx < cs; xx++) put(gutter + hc * cs + xx, i * cs + yy, headBg);
+        for (let yy = 0; yy < cs; yy++) {
+          const half = Math.abs(yy - (cs - 1) / 2), wdt = Math.max(1, Math.round(cs - 2 * half));
+          for (let xx = 0; xx < wdt; xx++) {
+            const x = row.dir > 0 ? xx : cs - 1 - xx;
+            put(gutter + hc * cs + x, i * cs + yy, col);
+          }
+        }
+      } else {
+        for (let yy = 0; yy < cs; yy++) for (let xx = 0; xx < cs; xx++) put(gutter + hc * cs + xx, i * cs + yy, col);
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  view = { data, lo, C, cs, gutter, stride };
+  drawLegend();
+}
+
+function drawLegend() {
+  if (!M) return;
+  let h = 'Symbols:<span class="sw" style="background:var(--sym0)"></span>0';
+  for (let s = 1; s < M.m; s++) h += `<span class="sw" style="background:${SYM[(s - 1) % SYM.length]}"></span>${s}`;
+  h += ' &nbsp; Head (state, pointing the way it faces):';
+  for (let q = 0; q < M.n; q++) h += `<span class="sw" style="background:${STATE[q % STATE.length]};outline:2px solid #141418"></span>${String.fromCharCode(65 + q)}`;
+  if (M.toot >= 0) h += ` &nbsp; <span class="sw" style="background:var(--toot)"></span>left margin: a toot (${M.T[M.toot].name}) in the next ${view && view.stride > 1 ? view.stride + ' steps' : 'step'}`;
+  $('legend').innerHTML = h;
+}
+
+function hover(e) {
+  if (!view) return;
+  const r = $('cv').getBoundingClientRect();
+  const i = Math.floor((e.clientY - r.top) / view.cs);
+  const row = view.data[i];
+  if (!row) return;
+  const span = 30, hc = row.pos - view.lo;
+  let s = '';
+  for (let c = Math.max(0, hc - span); c < Math.min(view.C, hc + span + 1); c++) {
+    s += c === hc ? `[${row.tape[c]}]` : String(row.tape[c]);
+  }
+  const st = String.fromCharCode(65 + row.q), arrow = row.dir > 0 ? '>' : '<';
+  const nxt = row.halted ? 'halted' : `next: ${M.T[row.next].name} → ${M.T[row.next].text}${row.next === M.toot ? '  (toot)' : ''}`;
+  $('hover').textContent = `after step ${fmt(row.t)}   state ${st}, facing ${arrow}   position ${row.pos}   ${nxt}\n${s}`;
+}
+
+// ---------------------------------------------------------------- wiring
+function load(str, push, replace) {
+  $('error').hidden = true;
+  try { M = parseMachine(str); }
+  catch (err) { $('error').textContent = err.message; $('error').hidden = false; return; }
+  $('machine').value = M.canon;
+  document.title = `${M.canon} – Turmite Explorer`;
+  if (push || replace) setURL(M.canon, replace);
+  analyse(); draw();
+}
+$('form').addEventListener('submit', e => { e.preventDefault(); $('start').value = 0; load($('machine').value, true); });
+$('draw').addEventListener('click', draw);
+['start', 'rows', 'stride', 'cell', 'cols'].forEach(id => $(id).addEventListener('change', draw));
+$('cv').addEventListener('mousemove', hover);
+$('jump-toot').addEventListener('click', () => {
+  if (!analysis || !analysis.lastToot) return;
+  const rows = Math.max(1, +$('rows').value || 400), stride = Math.max(1, +$('stride').value || 1);
+  $('start').value = Math.max(0, analysis.lastToot - Math.floor(rows * stride / 2));
+  draw();
+});
+document.querySelectorAll('.examples a').forEach(a => a.addEventListener('click', e => {
+  e.preventDefault(); $('start').value = 0; load(a.getAttribute('href').slice(1), true);
+}));
+window.addEventListener('popstate', () => { const m = machineFromURL(); if (m) load(m, false); });
+window.addEventListener('hashchange', () => { const m = machineFromURL(); if (m) load(m, false); });
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(draw, 200); });
+load(machineFromURL() || '1TB---_1PA0PB', false, !!new URL(location.href).searchParams.get('m'));
+</script>
+</body>
+</html>
